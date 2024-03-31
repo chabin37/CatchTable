@@ -22,5 +22,23 @@ public class database {
             throw new RuntimeException(e);
         }
     }
+    public Scanner getAccount() {
+        return account;
+    }
 
+    public Scanner getReserve() {
+        return reserve;
+    }
+
+    public Scanner getReserveManagement() {
+        return reserveManagement;
+    }
+
+    public Scanner getStore() {
+        return store;
+    }
+
+    public Scanner getWaiting() {
+        return waiting;
+    }
 }
