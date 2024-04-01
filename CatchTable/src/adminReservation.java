@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
-public class adminReservation {
-    Scanner reserveManagement;
+public class adminReservation {//사장이 예약 관리
+    database database;
 
-    public adminReservation(Scanner reserveManagement) {
-        this.reserveManagement = reserveManagement;
+    public adminReservation(database database) {
+        this.database= database;
     }
 }

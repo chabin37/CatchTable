@@ -1,9 +1,10 @@
 import java.util.Scanner;
 
-public class waiting {
-    Scanner waiting;
+public class waiting {//웨이팅
 
-    public waiting(Scanner waiting) {
-        this.waiting = waiting;
+    database database;
+
+    public waiting(database database) {
+        this.database= database;
     }
 }
