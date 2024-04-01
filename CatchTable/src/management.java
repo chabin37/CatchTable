@@ -1,9 +1,13 @@
 public class management {
     database database;
     adminReservation adminReservation;
-    waiting
+    customerReservation customerReservation;
+    waiting waiting;
     public management() {
         this.database=new database();
-        this.adminReservation=new adminReservation(this.database.reserveManagement);
+        this.adminReservation=new adminReservation(this.database.getReserveManagement());
+        this.customerReservation=new customerReservation(this.database.getReserve());
+        this.waiting=new waiting(this.database.getWaiting());
+
     }
 }

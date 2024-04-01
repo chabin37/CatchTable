@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class customerReservation {
-    Scanner customerReservation;
+    Scanner reserve;
 
-    public customerReservation(Scanner customerReservation) {
-        this.customerReservation = customerReservation;
+    public customerReservation(Scanner reserve) {
+        this.reserve = reserve;
     }
 }

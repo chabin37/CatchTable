@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class adminReservation {
-    Scanner adminReservation;
+    Scanner reserveManagement;
 
-    public adminReservation(Scanner adminReservation) {
-        this.adminReservation = adminReservation;
+    public adminReservation(Scanner reserveManagement) {
+        this.reserveManagement = reserveManagement;
     }
 }

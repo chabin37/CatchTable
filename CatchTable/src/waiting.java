@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class waiting {
-    Scanner wating;
+    Scanner waiting;
 
-    public waiting(Scanner wating) {
-        this.wating = wating;
+    public waiting(Scanner waiting) {
+        this.waiting = waiting;
     }
 }
