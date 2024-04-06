@@ -1,3 +1,4 @@
+package CatchTable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -20,6 +21,7 @@ public class database {
             reserve = new Scanner(new File("reserve.txt"));
             reserveManagement = new Scanner(new File("reserveManagement.txt"));
             store = new Scanner(new File("store.txt"));
+
             accountWrite = new PrintWriter("account.txt");
             reserveWrite=new PrintWriter("reserve.txt");
             reserveManagementWrite=new PrintWriter("reserveManagement.txt");

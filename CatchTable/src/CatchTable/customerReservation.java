@@ -1,3 +1,5 @@
+package CatchTable;
+
 import java.util.Scanner;
 
 public class customerReservation {//고객이 예약 관리

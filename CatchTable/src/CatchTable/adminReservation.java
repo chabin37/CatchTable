@@ -1,3 +1,4 @@
+package CatchTable;
 import java.util.Scanner;
 
 public class adminReservation {//사장이 예약 관리

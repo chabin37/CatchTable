@@ -1,5 +1,9 @@
+package CatchTable;
+
+import CatchTable.management;
+
 public class output {
-    management management;
+    CatchTable.management management;
 
     public output() {
         this.management = new management();
