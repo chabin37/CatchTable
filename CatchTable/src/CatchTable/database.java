@@ -2,6 +2,7 @@ package CatchTable;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.util.Scanner;
 import java.io.PrintWriter;
 import java.util.regex.Matcher;
@@ -27,12 +28,12 @@ public class database {
             reserveManagement = new Scanner(new File("reserveManagement.txt"));
             reserve = new Scanner(new File("reserve.txt"));
 
-            accountWrite = new PrintWriter("account.txt");
-            storeWrite = new PrintWriter("store.txt");
-            reserveManagementWrite = new PrintWriter("reserveManagement.txt");
-            reserveWrite = new PrintWriter("reserve.txt");
+            accountWrite = new PrintWriter(new FileWriter("account.txt", true));
+            storeWrite = new PrintWriter(new FileWriter("store.txt", true));
+            reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
+            reserveWrite = new PrintWriter(new FileWriter("reserve.txt", true));
 
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
         }
@@ -71,6 +72,8 @@ public class database {
             } else {//갯수만큼 있는 경우
                 isVaildString(0,part[0]);
                 isVaildString(0,part[1]);
+                isVaildTime(0,part[2]);
+                isVaildTime(0, part[3]);
             }
         }
         return true;
@@ -84,6 +87,9 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
+                isVaildString(0,part[0]);
+                isVaildTime(0,part[1]);
+                isvaildInt(0,part[2]);
             }
         }
         return true;
@@ -97,6 +103,11 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
+                isVaildString(0,part[0]);
+                isVaildString(0,part[1]);
+                isVaildDate(0,part[2]);
+                isVaildTime(0,part[3]);
+                isvaildInt(0,part[4]);
             }
         }
         return true;
@@ -128,7 +139,7 @@ public class database {
     }
 
     public boolean isVaildDate(int a, String s) {//날짜 문자열이 조건에 맞는가 2024/04/28
-        String regex = "^[][]:[][]:[][]$";//정규표현식
+        String regex = "^[2023-9999]:0[1-9]?1[0-2]:0[1-9]?[10-31]$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
         if (a == 0) {//무결성 검사파트
@@ -143,7 +154,7 @@ public class database {
         return true;
     }
 
-    public boolean isVaildTime(int a, String s) {//시간 문자열이 조건에 맞는가 10:00
+    public boolean isVaildTime(int a, String s) {//시간 문자열이s 조건에 맞는가 10:00
         String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
@@ -155,6 +166,18 @@ public class database {
             if (!matcher.matches()) {
                 return false;
             } else return true;
+        }
+        return true;
+    }
+    public boolean isvaildInt(int a, String s){//예약인원(정수형)이 제대로 입력됬는가
+        if (a == 0) {//무결성 검사파트
+            if(!s.matches("^[1-9][0-9]*$")){
+                completionCode();
+            }else return true;
+        }else{//입력이 정확한지 확인
+            if(!s.matches("^[1-9][0-9]*$")){
+                return false;
+            }else return true;
         }
         return true;
     }
