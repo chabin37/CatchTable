@@ -1,0 +1,2 @@
+CHABIN	CHABIN	사장
+DAIN	DAIN	고객

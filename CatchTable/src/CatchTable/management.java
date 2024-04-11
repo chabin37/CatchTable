@@ -12,6 +12,5 @@ public class management {
         this.database=new database();
         this.adminReservation=new adminReservation(this.database);
         this.customerReservation=new customerReservation(this.database);
-
     }
 }
