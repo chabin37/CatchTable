@@ -77,7 +77,7 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildString(0,part[0]);
+                isVaildStringStore(0,part[0]);
                 isVaildString(0,part[1]);
                 isVaildTime(0,part[2]);
                 isVaildTime(0, part[3]);
@@ -94,7 +94,7 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildString(0,part[0]);
+                isVaildStringStore(0,part[0]);
                 isVaildTime(0,part[1]);
                 isvaildInt(0,part[2]);
             }
