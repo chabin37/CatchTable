@@ -177,7 +177,7 @@ public class output {
             if(!select.matches("^[0-9]+$"))
             {
                 errPrint(7);
-                return;
+                continue;
             }
 
             mainFlag = Integer.parseInt(select);
@@ -208,7 +208,7 @@ public class output {
             if(!select.matches("^[0-9]+$"))
             {
                 errPrint(7);
-                return;
+                continue;
             }
             mainFlag = Integer.parseInt(select);
             switch (mainFlag) {

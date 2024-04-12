@@ -45,6 +45,10 @@ public class database {
         isvaildStore(4, store);
         isvaildReserveManagement(3, reserveManagement);
         isvaildReserve(5, reserve);
+        this.account.close();
+        this.store.close();
+        this.reserveManagement.close();
+        this.reserve.close();
     }
     //아래의 isVaildAccount를 이용해서, 요소가 count만큼 있는지 확인, 이후 isVaild String Time Date 확인
 
