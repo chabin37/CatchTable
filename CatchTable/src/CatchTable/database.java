@@ -41,18 +41,18 @@ public class database {
             System.exit(0);
         }
         //account, store, reserveManagement, reserve 순으로 입출력 전체 관리3435
-        isVaildAccount(3, account);
-        isvaildStore(4, store);
-        isvaildReserveManagement(3, reserveManagement);
-        isvaildReserve(5, reserve);
+        isValidAccount(3, account);
+        isValidStore(4, store);
+        isValidReserveManagement(3, reserveManagement);
+        isValidReserve(5, reserve);
         this.account.close();
         this.store.close();
         this.reserveManagement.close();
         this.reserve.close();
     }
-    //아래의 isVaildAccount를 이용해서, 요소가 count만큼 있는지 확인, 이후 isVaild String Time Date 확인
+    //아래의 isValidAccount를 이용해서, 요소가 count만큼 있는지 확인, 이후 isValid String Time Date 확인
 
-    private boolean isVaildAccount(int count, Scanner sc) {
+    private boolean isValidAccount(int count, Scanner sc) {
         //구성요소의 갯수가 count만큼 있는가
         //[ID]+[\t]+[PW]+[\t]+[사장 고객 여부]+[\n]
         while (sc.hasNextLine()) {
@@ -61,15 +61,15 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildString(0,part[0]);
-                isVaildString(0,part[1]);
-                isVaildCustomerOwner(0,part[2]);
+                isValidString(0,part[0]);
+                isValidString(0,part[1]);
+                isValidCustomerOwner(0,part[2]);
             }
         }
         return true;
     }
 
-    private boolean isvaildStore(int count, Scanner sc) {
+    private boolean isValidStore(int count, Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[영업 시작 시간]+[\t]+[영업 종료 시간]+[\n]
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
@@ -77,16 +77,16 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildStringStore(0,part[0]);
-                isVaildString(0,part[1]);
-                isVaildTime(0,part[2]);
-                isVaildTime(0, part[3]);
+                isValidStringStore(0,part[0]);
+                isValidString(0,part[1]);
+                isValidTime(0,part[2]);
+                isValidTime(0, part[3]);
             }
         }
         return true;
     }
 
-    private boolean isvaildReserveManagement(int count, Scanner sc) {
+    private boolean isValidReserveManagement(int count, Scanner sc) {
         //[매장 이름]+[\t]+[시간]+[\t]+[예약 가능 인원]+[\n]
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
@@ -94,15 +94,15 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildStringStore(0,part[0]);
-                isVaildTime(0,part[1]);
-                isvaildInt(0,part[2]);
+                isValidStringStore(0,part[0]);
+                isValidTime(0,part[1]);
+                isValidInt(0,part[2]);
             }
         }
         return true;
     }
 
-    private boolean isvaildReserve(int count, Scanner sc) {
+    private boolean isValidReserve(int count, Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[날짜]+[\t]+[시간]+[\t]+[예약 인원]+[\n]
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
@@ -110,17 +110,17 @@ public class database {
             if (part.length != count) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
-                isVaildStringStore(0,part[0]);
-                isVaildString(0,part[1]);
-                isVaildDate(0,part[2]);
-                isVaildTime(0,part[3]);
-                isvaildInt(0,part[4]);
+                isValidStringStore(0,part[0]);
+                isValidString(0,part[1]);
+                isValidDate(0,part[2]);
+                isValidTime(0,part[3]);
+                isValidInt(0,part[4]);
             }
         }
         return true;
     }
 
-    private boolean isVaildStringStore(int a, String s) {
+    private boolean isValidStringStore(int a, String s) {
         if (a == 0) {//무결성 검사파트
             if (!s.contains(" ")) {
                 if(s.length()<=15){
@@ -133,7 +133,7 @@ public class database {
     }
 
     //int a=0인 경우 데이터 무결성 검사용, int a!=0인 경우 입력받는 데 사용.
-    public boolean isVaildString(int a, String s) {//'단어'조건에 맞는가 (띄어쓰기가 없이 이어진 문자열)
+    public boolean isValidString(int a, String s) {//'단어'조건에 맞는가 (띄어쓰기가 없이 이어진 문자열)
         if (a == 0) {//무결성 검사파트
             if (!s.contains(" ")) {
                 if(s.length()<=15&&s.matches("^[a-zA-Z0-9\\p{Punct}]+$")){
@@ -144,7 +144,7 @@ public class database {
                 return !s.contains(" ")&&s.length() <= 15&&s.matches("^[a-zA-Z0-9\\p{Punct}]+$");
         }return true;
     }
-    public boolean isVaildCustomerOwner(int a, String s){
+    public boolean isValidCustomerOwner(int a, String s){
         if (a == 0) {//무결성 검사파트
             if (s.equals("사장")||s.equals("고객")) {
                 return true;
@@ -154,7 +154,7 @@ public class database {
         }return true;
     }
 
-    public boolean isVaildDate(int a, String s) {//날짜 문자열이 조건에 맞는가 2024/04/28
+    public boolean isValidDate(int a, String s) {//날짜 문자열이 조건에 맞는가 2024/04/28
         String regex = "^20(2[3-9]|[3-9][0-9]|2[1-9][0-9]{2}|[3-9][0-9]{3})/(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1])$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
@@ -173,7 +173,7 @@ public class database {
         } return true;
     }
 
-    public boolean isVaildTime(int a, String s) {//시간 문자열이s 조건에 맞는가 10:00
+    public boolean isValidTime(int a, String s) {//시간 문자열이s 조건에 맞는가 10:00
         String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
@@ -186,7 +186,7 @@ public class database {
         }
         return true;
     }
-    public boolean isvaildInt(int a, String s){//예약인원(정수형)이 제대로 입력됬는가
+    public boolean isValidInt(int a, String s){//예약인원(정수형)이 제대로 입력됬는가
         if (a == 0) {//무결성 검사파트
             if(!s.matches("^[1-9][0-9]*$")){
                 completionCode();
