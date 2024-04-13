@@ -15,7 +15,7 @@ public class customerReservation {
     }
 
     //1.예약하기
-    public void reserve() {
+    public void reserve(String ID) {
         int i=1; //1.김길동 돈까스, 2... 출력할때의 index
         try {
             // 파일에서 예약 정보 가져오기

@@ -183,8 +183,8 @@ public class output {
             mainFlag = Integer.parseInt(select);
             switch (mainFlag) {
                 case 1 -> management.adminReservation.storeJoin(ID);// 매장등록
-//                case 2 -> management.adminReservation.reserveManAdmin(ID);// 예약관리
-//                case 3 -> management.adminReservation.reserveNow(ID);// 예약현황
+                case 2 -> management.adminReservation.reserveManAdmin(ID);// 예약관리
+                case 3 -> management.adminReservation.reserveNow(ID);// 예약현황
                 case 4 -> {
                     System.out.println("\n*로그아웃합니다.");// 로그아웃
                     return;
@@ -212,8 +212,8 @@ public class output {
             }
             mainFlag = Integer.parseInt(select);
             switch (mainFlag) {
-//                case 1 -> management.customerReservation.reserve(ID);// 예약하기
-//                case 2 -> management.customerReservation.reserveManCustomer(ID);// 예약관리
+                case 1 -> management.customerReservation.reserve(ID);// 예약하기
+                case 2 -> management.customerReservation.reserveManCustomer(ID);// 예약관리
                 case 3 -> {
                     System.out.println("\n*로그아웃합니다.");// 로그아웃
                     return;
