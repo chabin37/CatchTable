@@ -115,11 +115,11 @@ public class adminReservation {// 사장이 예약 관리
 
 
     public void reserveManAdmin(String ID) {// 예약 관리
+
         String storeName="";
         String openTime="";
         String closeTime="";
-        int manageNum=0;
-        List<String> reserveData=new ArrayList<>();
+
         // 매장 등록 여부 확인
         boolean IDflag=false; //해당 ID로 가게가 존재하는지 확인하는 플래그
         // 파일에서 매장 정보 가져오기
@@ -149,29 +149,33 @@ public class adminReservation {// 사장이 예약 관리
         }
 
         // 파일에서 예약 정보 가져오기
-        try { // 파일 내 Scanner위치 초기화
-            database.reserveManagement = new Scanner(new File("reserveManagement.txt"));
-            while (database.reserveManagement.hasNextLine()) {
-                String line = database.reserveManagement.nextLine();
-                String[] part = line.split("\t");
-                // System.out.println(line);//출력확인
-                if (part[0].equals(storeName)) {
-                    manageNum++;
-                    reserveData.add(part[1]);
-                    reserveData.add(part[2]);
-                }
-            }
 
-        } catch (Exception e) {
-            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
-            System.exit(0);
-        } finally {
-            database.reserveManagement.close();
-        }
 
         // (출력,메뉴 1.예약 시간 및 인원 등록,2.예약 삭제,1과2 이외 return)반복-흐름도 확인
         while (true) {
+            int manageNum=0;
+            List<String> reserveData=new ArrayList<>();
             String select;
+            try { // 파일 내 Scanner위치 초기화
+                database.reserveManagement = new Scanner(new File("reserveManagement.txt"));
+                while (database.reserveManagement.hasNextLine()) {
+                    String line = database.reserveManagement.nextLine();
+                    String[] part = line.split("\t");
+                    // System.out.println(line);//출력확인
+                    if (part[0].equals(storeName)) {
+                        manageNum++;
+                        reserveData.add(part[1]);
+                        reserveData.add(part[2]);
+                    }
+                }
+
+            } catch (Exception e) {
+                System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
+                System.exit(0);
+            } finally {
+                database.reserveManagement.close();
+            }
+
             // 출력
             System.out.println("[예약 관리}");
             System.out.println("매장 이름: "+storeName);
@@ -195,12 +199,15 @@ public class adminReservation {// 사장이 예약 관리
             // 입력
             select = scan.nextLine();
 
-            if (!select.matches("^[0-9]+$"))
+            if (!select.matches("^[0-9]+$")) {
+                System.out.println("[오류] 해당하는 번호가 없습니다.");
                 return;
-            LocalTime open= LocalTime.parse(openTime);
-            LocalTime close=LocalTime.parse(closeTime);
+            }
+
 
             flag = Integer.parseInt(select);
+            LocalTime open= LocalTime.parse(openTime);
+            LocalTime close=LocalTime.parse(closeTime);
             switch (flag) {
                 case 1 -> {
                     System.out.println("[예약 등록]");
@@ -223,11 +230,13 @@ public class adminReservation {// 사장이 예약 관리
                         for(int j=0; j<manageNum*2; j=j+2) {
                             if(time.equals(reserveData.get(j))) {
                                 System.out.println("[오류] 이미 등록된 시간을 포함하고 있습니다.");
+                                return;
                             }
                         }
                         LocalTime inputTime = LocalTime.parse(time);
                         if (!(inputTime.isAfter(open) && inputTime.isBefore(close))) {
                             System.out.println("[오류] 예약 시간은 영업 시간 사이에 있어야 합니다.");
+                            return;
                         }
                         if(!database.isValidInt(1, maxCapacityStr)) {
                             System.out.println("[오류] 최대 인원은 양의 정수여야 합니다.");
@@ -237,21 +246,24 @@ public class adminReservation {// 사장이 예약 관리
                     }
 
                     for(int i=0; i<tokens.length; i=i+2) {
-                        if(!(i==tokens.length-1)) {
-                            System.out.print(tokens[i]+"에 "+tokens[i+1]+",");
+                        if(!(i==tokens.length-2)) {
+                            System.out.print(tokens[i]+"에 "+tokens[i+1]+"명,");
                         }else {
-                            System.out.print(tokens[i]+"에 "+tokens[i+1]);
+                            System.out.print(tokens[i]+"에 "+tokens[i+1]+"명");
                         }
                     }
                     System.out.println("을 예약 시간으로 등록하시겠습니까? (Yes/No)");
                     input = scan.nextLine();
-                    if(input.equals("No")) {
+                    if (input.equals("No")) {
                         System.out.println("등록이 취소되었습니다.");
-                    }else {
+                    } else {
+                        manageNum++;
+                        reserveData.add(tokens[0]);
+                        reserveData.add(tokens[1]);
                         try {
                             database.reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
-                            for(int i=0; i<tokens.length; i=i+2) {
-                                database.reserveManagementWrite.println(storeName + "\t" + tokens[i] + "\t" + tokens[i+1]);
+                            for (int i = 0; i < tokens.length; i = i + 2) {
+                                database.reserveManagementWrite.println(storeName + "\t" + tokens[i] + "\t" + tokens[i + 1]);
                             }
                         } catch (Exception e) {
                             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
@@ -262,7 +274,7 @@ public class adminReservation {// 사장이 예약 관리
                         System.out.println("등록되었습니다.");
                     }
 
-                } // 예약 시간 및 인원 등록(시간 ,최대인원)
+                }
                 case 2 -> {
                     System.out.println("[예약 삭제}");
                     System.out.println();
@@ -278,14 +290,17 @@ public class adminReservation {// 사장이 예약 관리
                         }
                         System.out.println("----------------------------------------");
                     }
-                    System.out.println("예약 시간의 번호를 입력해 주세요:");
+                    System.out.print("예약 시간의 번호를 입력해 주세요:");
                     int index;
 
                     try {
-                        String input= scan.nextLine();
-                        index = Integer.parseInt(input);
+                        String input = scan.nextLine();
+                        if (input.contains(".")) {
+                            index = Integer.parseInt(input.substring(0, input.indexOf(".")));
+                        } else {
+                            index = Integer.parseInt(input);
+                        }
 
-                        // 양수이고, 1부터 manageNum까지의 범위에 속하는지 확인
                         if (!(index > 0 && index <= manageNum)) {
                             System.out.println("[오류] 존재하지 않는 항목입니다.");
                             return;
@@ -294,33 +309,18 @@ public class adminReservation {// 사장이 예약 관리
                         System.out.println("[오류] 존재하지 않는 항목입니다.");
                         return;
                     }
+
                     System.out.println();
-                    System.out.println(reserveData.get((index-1)*2)+"을 삭제하시겠습니까? (Yes/No):");
+                    System.out.print(reserveData.get((index-1)*2)+"을 삭제하시겠습니까? (Yes/No):");
                     String input=scan.nextLine();
-                    if(input.equals("No")) {
-                        System.out.println("등록이 취소되었습니다.");
-                    }else {
-                        try {
-                            PrintWriter reserveWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
-
-                            while (database.reserve.hasNextLine()){
-                                String line = database.reserve.nextLine();
-                                String[] part = line.split("\t");
-
-                                if(part[0].equals(storeName)) {
-                                    if(part[1].equals(reserveData.get((index-1)*2))) {
-                                        continue;
-                                    }
-                                    reserveWrite.println(line);
-                                }
-                            }
-                        } catch (Exception e) {
-                            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
-                            System.exit(0);
-                        } finally {
-                            database.reserveManagementWrite.close();
-                        }
-                        System.out.println("등록되었습니다.");
+                    if (input.equals("No")) {
+                        System.out.println("예약삭제가 취소되었습니다.");
+                        return;
+                    } else {
+                        String str=storeName+"\t"+reserveData.get((index-1)*2)+"\t"+reserveData.get((index-1)*2+1);
+                        removeReserve(idxRm(str,"reserveManagement.txt"),"reserveManagement.txt");
+                        System.out.println("예약삭제가 완료되었습니다.");
+                        return;
                     }
 
                 } // 예약 삭제(Index 입력 -검사 if(!문자열.matches("^[0-9]+$"),범위)
@@ -330,6 +330,58 @@ public class adminReservation {// 사장이 예약 관리
             }
         }
     }
+
+    private int idxRm(String str, String fileName) {//삭제할 위치
+        int n=-1;
+        String search;
+        try { // 파일 내 Scanner위치 초기화
+            database.reserveManagement = new Scanner(new File(fileName));
+            while(database.reserveManagement.hasNextLine()) {
+                n++;
+                search=database.reserveManagement.nextLine();
+                if(search.equals(str))
+                    break;
+            }
+
+        } catch (Exception e) {
+            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
+            System.exit(0);
+        } finally {
+            database.reserveManagement.close();
+        }
+        return n;
+    }
+
+    private void removeReserve(int c, String fileName) {
+        List<String> temp = new ArrayList<>();
+
+        try { // 파일 내 Scanner위치 초기화
+            database.reserveManagement = new Scanner(new File(fileName));
+            while(database.reserveManagement.hasNextLine()) {
+                temp.add(database.reserveManagement.nextLine());
+            }
+        } catch (Exception e) {
+            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
+            System.exit(0);
+        } finally {
+            database.reserveManagement.close();
+        }
+
+        temp.remove(c);
+
+        try {
+            database.reserveManagementWrite = new PrintWriter(new FileWriter(fileName, false));
+            for(int i=0;i<temp.size();i++)
+                database.reserveManagementWrite.println(temp.get(i));
+        } catch (Exception e) {
+            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
+            System.exit(0);
+        } finally {
+            database.reserveManagementWrite.close();
+        }
+    }
+
+
 
     public void reserveNow(String ID) {// 예약 현황
         String storeName="";
@@ -404,51 +456,39 @@ public class adminReservation {// 사장이 예약 관리
             System.out.print("원하는 메뉴를 선택해 주세요:");
             // 입력
             select = scan.nextLine();
-            flag = Integer.parseInt(select);
+            try {
+                flag = Integer.parseInt(select);
+            }catch(Exception e) {
+                return;
+            }
             switch (flag) {
                 case 1 -> {
 
-                    System.out.println("예약 허가할 번호를 입력하세요:");
+                    System.out.print("예약 허가할 번호를 입력하세요:");
                     select = scan.nextLine();
 
-                    if (!select.matches("^[0-9]+$"))
+                    if (!select.matches("^[0-9]+$")) {
+                        System.out.println("[오류] 해당하는 번호가 없습니다.");
                         return;
+                    }
+
                     int input=Integer.parseInt(select);
-                    if(input<1&&input>reserveNum) {
+                    if(input<1||input>reserveNum) {
                         System.out.println("[오류] 해당하는 번호가 없습니다.");
                         return;
                     }
                     System.out.print(input+"번을 예약허가 하시겠습니까?(Yes/No):"); // 예약 매장 목록에 있는 항목 번호 입력한 경우
                     select = scan.nextLine();
-
-                    if(select.equals("No")) { // No를 입력한 경우
+                    if (select.equals("No")) {
                         System.out.println("예약 허가가 취소되었습니다.");
                         return;
+                    } else {
+                        String str=storeName+"\t"+reserveData.get((input-1)*4)+"\t"+reserveData.get((input-1)*4+1)+"\t"+reserveData.get((input-1)*4+2)+"\t"+reserveData.get((input-1)*4+3);
+                        removeReserve(idxRm(str,"reserve.txt"),"reserve.txt");
+                        System.out.println("예약 허가되었습니다.");
+                        return;
                     }
-                    boolean doubleflag=false;  //사용자가 동일한 정보로 예약을 2번했을 때 하나만 삭제하기 위해
-                    try { // No를 입력하지 않은 모든 경우 (즉, 예약 삭제가 이루어지는 경우)
-                        PrintWriter reserveWrite = new PrintWriter(new FileWriter("reserve.txt", true));
 
-                        while (database.reserve.hasNextLine()){
-                            String line = database.reserve.nextLine();
-                            String[] part = line.split("\t");
-
-                            if(part[0].equals(storeName)) {
-                                if(part[1].equals(reserveData.get((input-1)*4))&&part[2].equals(reserveData.get((input-1)*4+1))&&part[3].equals(reserveData.get((input-1)*4+2))&&part[4].equals(reserveData.get((input-1)*4+3))&&!doubleflag) {
-                                    doubleflag=true;
-                                    continue;
-                                }
-                            }
-                            reserveWrite.println(line);
-                        }
-                    } catch (Exception e) {
-                        System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
-                        System.exit(0);
-                    } finally {
-                        database.reserveWrite.close();
-                    }
-                    System.out.println("예약 허가되었습니다.");
-                    return;
 
                 } // 예약허가(Index 입력 -검사 if(!문자열.matches("^[0-9]+$"),범위)
                 default -> {
