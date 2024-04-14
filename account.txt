@@ -1,2 +1,2 @@
-chabin37	chabin37	고객
-chabin3737	chabin3737	사장
+37	37	고객
+3737	3737	사장
