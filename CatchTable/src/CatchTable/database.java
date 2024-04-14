@@ -169,7 +169,7 @@ public class database {
         } else {//입력이 정확한지 확인
             if(!matcher.matches()) {
                 return false;
-            }else isLeapYear(s);//윤년조건 만족하지 않는 경우
+            }else return isLeapYear(s);//윤년조건 만족하지 않는 경우
         } return true;
     }
 
