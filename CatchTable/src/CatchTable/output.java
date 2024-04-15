@@ -127,8 +127,7 @@ public class output {
             errflag=true;
         }
 
-        if(errflag)
-            return;
+
 
         try { // 파일 내 Scanner위치 초기화
             management.database.account = new Scanner(new File("account.txt"));
@@ -138,7 +137,7 @@ public class output {
                 // System.out.println(line);//출력확인
                 if (part[0].equals(joinID)) {
                     errPrint(6);
-                    return;
+                    errflag=true;
                 }
             }
         } catch (Exception e) {
@@ -147,6 +146,9 @@ public class output {
         } finally {
             management.database.account.close();
         }
+
+        if(errflag)
+            return;
 
         // 회원가입완료
         try {
