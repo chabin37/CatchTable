@@ -337,8 +337,18 @@ public class customerReservation {
         }
 
         int reservationIndex = Integer.parseInt(inputMenu);
+//
+//        if(reservationIndex == 2) { // 메뉴 선택 입력값이 2일때
+//            return;
+//        }
+//        if(reservationIndex!= 1 || reservationIndex!=2) {
+//            System.out.println("[오류] 올바르지 않은 입력입니다.");
+//            return;
+//        }
 
-        if(reservationIndex != 1) { // 메뉴 선택 입력값이 1이 아닐 때
+
+        //       기존 기획서대로, 1아닌 값이기만 하면 오류출력없이 돌아감.
+        if(reservationIndex != 1) {
             return;
         }
 
