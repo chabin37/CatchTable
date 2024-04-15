@@ -182,7 +182,7 @@ public class adminReservation {// 사장이 예약 관리
             System.out.println("영업 시간: "+openTime+"~"+closeTime);
             System.out.println();
             if(manageNum==0) {
-                System.out.println("현재 설정된 예약이 없습니다.");
+                System.out.println("현재 설정된 예약이 없습니다.\n");
             }else {
                 System.out.println("현재 설정된 예약 목록");
                 System.out.println("----------------------------------------");
@@ -252,7 +252,7 @@ public class adminReservation {// 사장이 예약 관리
                             System.out.print(tokens[i]+"에 "+tokens[i+1]+"명");
                         }
                     }
-                    System.out.println("을 예약 시간으로 등록하시겠습니까? (Yes/No)");
+                    System.out.print("을 예약 시간으로 등록하시겠습니까? (Yes/No): ");
                     input = scan.nextLine();
                     if (input.equals("No")) {
                         System.out.println("등록이 취소되었습니다.");
@@ -306,7 +306,7 @@ public class adminReservation {// 사장이 예약 관리
                             return;
                         }
                     } catch (NumberFormatException e) {
-                        System.out.println("[오류] 존재하지 않는 항목입니다.");
+                        System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
                         return;
                     }
 
@@ -428,6 +428,8 @@ public class adminReservation {// 사장이 예약 관리
                     reserveData.add(part[2]);
                     reserveData.add(part[3]);
                     reserveData.add(part[4]);
+                }else {
+                    System.out.println("예약 내역이 없습니다.");
                 }
             }
 

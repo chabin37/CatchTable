@@ -107,21 +107,28 @@ public class output {
         joinPW = scan.nextLine();
         System.out.print("회원 유형을 선택하세요(사장,고객): ");
         distinguish = scan.nextLine();
+        boolean errflag=false;
 
         // ----검사----
         if (joinID.length() > 15 || joinPW.length() > 15) {// 15자리
             errPrint(2);
-            return;
-        } else if (joinID.contains(" ") || joinPW.contains(" ") || joinID.contains("\t") || joinPW.contains("\t")) {// 공백포함
-            errPrint(3);
-            return;
-        } else if (!joinID.matches("^[a-zA-Z0-9\\p{Punct}]+$") || !joinPW.matches("^[a-zA-Z0-9\\p{Punct}]+$")) {// 영어,숫자,특수문자만
-            errPrint(4);
-            return;
-        } else if (!distinguish.equals("사장") && !distinguish.equals("고객")) {// 회원유형
-            errPrint(5);
-            return;
+            errflag=true;
         }
+        if (joinID.contains(" ") || joinPW.contains(" ") || joinID.contains("\t") || joinPW.contains("\t")) {// 공백포함
+            errPrint(3);
+            errflag=true;
+        }
+        if (!joinID.matches("^[a-zA-Z0-9\\p{Punct}]+$") || !joinPW.matches("^[a-zA-Z0-9\\p{Punct}]+$")) {// 영어,숫자,특수문자만
+            errPrint(4);
+            errflag=true;
+        }
+        if (!distinguish.equals("사장") && !distinguish.equals("고객")) {// 회원유형
+            errPrint(5);
+            errflag=true;
+        }
+
+        if(errflag)
+            return;
 
         try { // 파일 내 Scanner위치 초기화
             management.database.account = new Scanner(new File("account.txt"));
