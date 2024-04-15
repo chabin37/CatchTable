@@ -428,8 +428,6 @@ public class adminReservation {// 사장이 예약 관리
                     reserveData.add(part[2]);
                     reserveData.add(part[3]);
                     reserveData.add(part[4]);
-                }else {
-                    System.out.println("예약 내역이 없습니다.");
                 }
             }
 
@@ -439,6 +437,10 @@ public class adminReservation {// 사장이 예약 관리
         }
         // 예약 현황 출력
         System.out.println("[예약관리]");
+        if(reserveNum==0) {
+            System.out.println("예약 내역이 없습니다.");
+            return;
+        }
         System.out.println();
         System.out.println("예약 매장");
         System.out.println("----------------------------------------");
