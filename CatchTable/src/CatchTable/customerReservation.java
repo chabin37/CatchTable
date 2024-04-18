@@ -2,7 +2,6 @@ package CatchTable;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,7 +60,14 @@ public class customerReservation {
             System.out.println("[오류] 해당하는 매장이 없습니다.");
             return;
         }
-        int storeIndex = Integer.parseInt(ans);
+        int storeIndex;
+        try {
+            storeIndex = Integer.parseInt(ans);
+        }catch(Exception e) {
+            System.out.println("[오류] 해당하는 매장이 없습니다.");
+            return;
+        }
+
         if(database.isValidInt(1,Integer.toString(storeIndex)) != true||storeIndex>temp.size() ) {
             System.out.println("[오류] 해당하는 매장이 없습니다.");
             return;
@@ -186,7 +192,12 @@ public class customerReservation {
             System.out.println("[오류] 인원수는 1 이상의 정수값이어야 합니다.");
             return;
         }
-
+        try {
+            Integer.parseInt(FinalreserveIndex);
+        }catch(Exception e) {
+            System.out.println("[오류] 목록에 없는 번호입니다.");
+            return;
+        }
         if(Integer.parseInt(FinalreserveIndex) >time.size()||!FinalreserveIndex.matches("^[0-9]+$")) { //예약 희망 번호가 목록에 있는 번호보다 큰지 검사
             System.out.println("[오류] 목록에 없는 번호입니다.");
             return;
@@ -197,6 +208,12 @@ public class customerReservation {
                 System.out.println("[오류] 이미 예약한 시간대입니다.");
                 return;
             }
+        }
+        try {
+            Integer.parseInt(FinalreserveNum);
+        }catch(Exception e) {
+            System.out.println("[오류] 인원수가 최대 인원을 넘어섰습니다.");
+            return;
         }
         if(Integer.parseInt(FinalreserveNum) > max.get(Integer.parseInt(FinalreserveIndex)-1) ) { //예약 희망인원이 목록에 있는 인원보다 클떄
             System.out.println("[오류] 인원수가 최대 인원을 넘어섰습니다.");
@@ -280,13 +297,15 @@ public class customerReservation {
         String reserveDate = ""; // 예약 날짜
         String reserveTime = ""; // 예약 시간
         String reserveNum = ""; // 예약 인원
-        boolean IDflag = false; // 해당 ID로 예약한 가게가 존재하는지 확인하는 플래그
         int index = 0; // 예약 현황 인덱스
 
         try {
             // 파일에서 예약 현황 가져오기
             database.reserve = new Scanner(new File("reserve.txt"));
-            boolean first = true; // 첫 번째 예약을 확인하기 위한 플래그
+
+            System.out.println("\n[예약관리]");
+            System.out.println("-".repeat(40));
+            System.out.println("예약 매장");
 
             // 예약 현황 출력
             while (database.reserve.hasNextLine()){
@@ -295,28 +314,14 @@ public class customerReservation {
 
                 // 예약 내역이 있을 때
                 if(part[1].equals(ID)) {
-                    IDflag = true;
                     storeName = part[0];
                     reserveDate = part[2];
                     reserveTime = part[3];
                     reserveNum = part[4];
 
-                    if(first) { // 첫 번째 예약인 경우만 메시지 출력
-                        System.out.println("\n[예약관리]");
-                        System.out.println("-".repeat(40));
-                        System.out.println("예약 매장");
-                        first = false;
-                    }
-
                     System.out.println((index + 1) + ". " + storeName + " " + reserveDate + " " + reserveTime);
                     index++;
                 }
-            }
-
-            // 예약 내역이 없을 때
-            if(!IDflag) {
-                System.out.println("예약 내역이 없습니다. 예약을 먼저 하고 이용해주세요.");
-                return;
             }
 
             System.out.println("-".repeat(40));
@@ -336,7 +341,14 @@ public class customerReservation {
             return;
         }
 
-        int reservationIndex = Integer.parseInt(inputMenu);
+        int reservationIndex ;
+
+        try {
+            reservationIndex= Integer.parseInt(inputMenu);
+        }catch(Exception e) {
+            System.out.println("[오류] 올바르지 않은 입력입니다.");
+            return;
+        }
 //
 //        if(reservationIndex == 2) { // 메뉴 선택 입력값이 2일때
 //            return;
@@ -363,7 +375,14 @@ public class customerReservation {
             return;
         }
 
-        int deletionIndex = Integer.parseInt(inputDelete);
+        int deletionIndex ;
+
+        try {
+            deletionIndex= Integer.parseInt(inputDelete);
+        }catch(Exception e) {
+            System.out.println("[오류] 해당하는 번호가 존재하지 않습니다.");
+            return;
+        }
 
         if(deletionIndex < 1 || deletionIndex > index) { // 예약 매장 목록에 없는 항목의 번호를 입력한 경우
             System.out.println("[오류] 해당하는 번호가 존재하지 않습니다.");
@@ -406,6 +425,7 @@ public class customerReservation {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
         } finally {
+            database.reserve.close();
             if (database.reserveWrite != null) {
                 database.reserveWrite.close();
             }

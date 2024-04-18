@@ -204,8 +204,12 @@ public class adminReservation {// 사장이 예약 관리
                 return;
             }
 
+            try {
+                flag = Integer.parseInt(select);
+            }catch(Exception e) {
+                return;
+            }
 
-            flag = Integer.parseInt(select);
             LocalTime open= LocalTime.parse(openTime);
             LocalTime close=LocalTime.parse(closeTime);
             switch (flag) {
@@ -242,6 +246,12 @@ public class adminReservation {// 사장이 예약 관리
                             System.out.println("[오류] 최대 인원은 양의 정수여야 합니다.");
                             return;
                         }
+                        try {
+                            Integer.parseInt(maxCapacityStr);
+                        }catch(Exception e) {
+                            System.out.println("[오류] 최대 인원 범위오류");
+                            return;
+                        }
 
                     }
 
@@ -272,6 +282,7 @@ public class adminReservation {// 사장이 예약 관리
                             database.reserveManagementWrite.close();
                         }
                         System.out.println("등록되었습니다.");
+                        return;
                     }
 
                 }
@@ -475,8 +486,14 @@ public class adminReservation {// 사장이 예약 관리
                         System.out.println("[오류] 해당하는 번호가 없습니다.");
                         return;
                     }
+                    int input;
+                    try {
+                        input=Integer.parseInt(select);
+                    }catch(Exception e) {
+                        System.out.println("[오류] 해당하는 번호가 없습니다.");
+                        return;
+                    }
 
-                    int input=Integer.parseInt(select);
                     if(input<1||input>reserveNum) {
                         System.out.println("[오류] 해당하는 번호가 없습니다.");
                         return;

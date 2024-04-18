@@ -26,16 +26,15 @@ public class database {
 
     public database() {
         try {
-            account = new Scanner(new File("account.txt"));
-            store = new Scanner(new File("store.txt"));
-            reserveManagement = new Scanner(new File("reserveManagement.txt"));
-            reserve = new Scanner(new File("reserve.txt"));
-
             accountWrite = new PrintWriter(new FileWriter("account.txt", true));
             storeWrite = new PrintWriter(new FileWriter("store.txt", true));
             reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
             reserveWrite = new PrintWriter(new FileWriter("reserve.txt", true));
 
+            account = new Scanner(new File("account.txt"));
+            store = new Scanner(new File("store.txt"));
+            reserveManagement = new Scanner(new File("reserveManagement.txt"));
+            reserve = new Scanner(new File("reserve.txt"));
         } catch (Exception e) {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
@@ -190,9 +189,23 @@ public class database {
         if (a == 0) {//무결성 검사파트
             if(!s.matches("^[1-9][0-9]*$")){
                 completionCode();
-            }else return true;
+            }else{
+                try {
+                    Integer.parseInt(s);
+                }catch (Exception e){
+                    completionCode();
+                }return true;
+            }
         }else{//입력이 정확한지 확인
-            return s.matches("^[1-9][0-9]*$");
+            if(!s.matches("^[1-9][0-9]*$")){
+                return false;
+            }else{
+                try{
+                    Integer.parseInt(s);
+                }catch(Exception e){
+                    return false;
+                }return true;
+            }
         }
         return true;
     }

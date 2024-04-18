@@ -28,13 +28,20 @@ public class output {
             System.out.println("2.회원가입");
             System.out.println("3.종료");
             System.out.print("메뉴를 선택해 주세요:");
+
             select=scan.nextLine();
             if(!select.matches("^[0-9]+$"))
             {
                 errPrint(7);
                 continue;
             }
-            startFlag = Integer.parseInt(select);
+
+            try {
+                startFlag = Integer.parseInt(select);
+            }catch(Exception e) {
+                errPrint(8);
+                continue;
+            }
             switch (startFlag) {
                 case 1 -> login();
                 case 2 -> join();
@@ -188,8 +195,13 @@ public class output {
                 errPrint(7);
                 continue;
             }
+            try {
+                mainFlag = Integer.parseInt(select);
+            }catch(Exception e) {
+                errPrint(8);
+                continue;
+            }
 
-            mainFlag = Integer.parseInt(select);
             switch (mainFlag) {
                 case 1 -> management.adminReservation.storeJoin(ID);// 매장등록
                 case 2 -> management.adminReservation.reserveManAdmin(ID);// 예약관리
@@ -219,7 +231,12 @@ public class output {
                 errPrint(7);
                 continue;
             }
-            mainFlag = Integer.parseInt(select);
+            try {
+                mainFlag = Integer.parseInt(select);
+            }catch(Exception e) {
+                errPrint(8);
+                continue;
+            }
             switch (mainFlag) {
                 case 1 -> management.customerReservation.reserve(ID);// 예약하기
                 case 2 -> management.customerReservation.reserveManCustomer(ID);// 예약관리
@@ -247,3 +264,4 @@ public class output {
 
     }
 }
+
