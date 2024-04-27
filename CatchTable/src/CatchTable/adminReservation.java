@@ -47,6 +47,7 @@ public class adminReservation {// 사장이 예약 관리
         Loop1:while(true) {
             System.out.print("매장 이름: ");
             storeName = scan.nextLine();
+            storeName = storeName .replaceAll("\\s+", "");
             try { // 파일 내 Scanner위치 초기화
                 database.store = new Scanner(new File("store.txt"));
                 while (database.store.hasNextLine()) {// 매장이름 중복 확인
@@ -74,6 +75,7 @@ public class adminReservation {// 사장이 예약 관리
         // 영업 시간 등록
         System.out.print("영업 시작 시간 (예: 10:00): ");
         openTime = scan.nextLine();
+        openTime = openTime.replaceAll("\\s+", "");
 
         while (database.isValidTime(1, openTime)==false) {
             System.out.println("올바른 시간 형식이 아닙니다. 다시 입력해주세요.");
@@ -83,6 +85,7 @@ public class adminReservation {// 사장이 예약 관리
 
         System.out.print("영업 마감 시간 (예: 18:00): ");
         closeTime = scan.nextLine();
+        closeTime = closeTime.replaceAll("\\s+", "");
 
         while (database.isValidTime(1, closeTime)==false) {
             System.out.println("올바른 시간 형식이 아닙니다. 다시 입력해주세요.");
@@ -177,7 +180,7 @@ public class adminReservation {// 사장이 예약 관리
             }
 
             // 출력
-            System.out.println("[예약 관리}");
+            System.out.println("[예약 관리]");
             System.out.println("매장 이름: "+storeName);
             System.out.println("영업 시간: "+openTime+"~"+closeTime);
             System.out.println();
@@ -217,7 +220,7 @@ public class adminReservation {// 사장이 예약 관리
                     System.out.println("[예약 등록]");
                     System.out.print("등록할 시간과 최대 인원을 입력해주세요 (예: 09:00 15):");
                     String input = scan.nextLine();
-                    String[] tokens = input.split(" ");
+                    String[] tokens = input.split("\\s+");
                     if (tokens.length % 2 != 0) {
                         System.out.println("[오류] 올바르지 않은 형식입니다");
                         return;
@@ -238,7 +241,7 @@ public class adminReservation {// 사장이 예약 관리
                             }
                         }
                         LocalTime inputTime = LocalTime.parse(time);
-                        if (!(inputTime.isAfter(open) && inputTime.isBefore(close))) {
+                        if (!(inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.equals(close) || inputTime.isBefore(close))) {
                             System.out.println("[오류] 예약 시간은 영업 시간 사이에 있어야 합니다.");
                             return;
                         }
@@ -290,22 +293,20 @@ public class adminReservation {// 사장이 예약 관리
                     System.out.println("[예약 삭제}");
                     System.out.println();
 
-                    if(manageNum==0) {
-                        System.out.println("삭제할 수 있는 예약이 없습니다.");
-                        return;
-                    }else {
-                        System.out.println("현재 설정된 예약 목록");
-                        System.out.println("----------------------------------------");
-                        for(int i=0; i<manageNum*2; i=i+2) {
-                            System.out.println((i/2+1)+". "+reserveData.get(i)+"|최대 인원: "+reserveData.get(i+1));
-                        }
-                        System.out.println("----------------------------------------");
+
+                    System.out.println("현재 설정된 예약 목록");
+                    System.out.println("----------------------------------------");
+                    for(int i=0; i<manageNum*2; i=i+2) {
+                        System.out.println((i/2+1)+". "+reserveData.get(i)+"|최대 인원: "+reserveData.get(i+1));
                     }
+                    System.out.println("----------------------------------------");
+
                     System.out.print("예약 시간의 번호를 입력해 주세요:");
                     int index;
 
                     try {
                         String input = scan.nextLine();
+                        input = input.replaceAll("\\s+", "");
                         if (input.contains(".")) {
                             index = Integer.parseInt(input.substring(0, input.indexOf(".")));
                         } else {
@@ -448,10 +449,7 @@ public class adminReservation {// 사장이 예약 관리
         }
         // 예약 현황 출력
         System.out.println("[예약관리]");
-        if(reserveNum==0) {
-            System.out.println("예약 내역이 없습니다.");
-            return;
-        }
+
         System.out.println();
         System.out.println("예약 매장");
         System.out.println("----------------------------------------");

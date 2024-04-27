@@ -1,14 +1,11 @@
 package CatchTable;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.time.LocalDate;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Scanner;
 import java.io.PrintWriter;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +51,7 @@ public class database {
     private boolean isValidAccount(int count, Scanner sc) {
         //구성요소의 갯수가 count만큼 있는가
         //[ID]+[\t]+[PW]+[\t]+[사장 고객 여부]+[\n]
+        Set<String> set = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -63,6 +61,7 @@ public class database {
                 isValidString(0,part[0]);
                 isValidString(0,part[1]);
                 isValidCustomerOwner(0,part[2]);
+                isDuplicate(set, part[0]);
             }
         }
         return true;
@@ -70,6 +69,8 @@ public class database {
 
     private boolean isValidStore(int count, Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[영업 시작 시간]+[\t]+[영업 종료 시간]+[\n]
+        Set<String> set = new HashSet<>();
+        Set<String> set2 = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -80,6 +81,8 @@ public class database {
                 isValidString(0,part[1]);
                 isValidTime(0,part[2]);
                 isValidTime(0, part[3]);
+                isDuplicate(set, part[0]);
+                isDuplicate(set2, part[1]);
             }
         }
         return true;
@@ -87,6 +90,7 @@ public class database {
 
     private boolean isValidReserveManagement(int count, Scanner sc) {
         //[매장 이름]+[\t]+[시간]+[\t]+[예약 가능 인원]+[\n]
+        Set<Map> set = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -96,6 +100,7 @@ public class database {
                 isValidStringStore(0,part[0]);
                 isValidTime(0,part[1]);
                 isValidInt(0,part[2]);
+                isDuplicateReserveManagement(set, part[0],part[1]);
             }
         }
         return true;
@@ -225,6 +230,18 @@ public class database {
                 return day <= 28;
             }
         }return true;
+    }
+    public void isDuplicate(Set set, String object) {
+        if (!set.add(object)) {
+            completionCode();
+        }
+    }
+    public void isDuplicateReserveManagement(Set set, String key, String value) {
+        Map<String, String> map= new HashMap<>();
+        map.put(key, value);
+        if(!set.add(map)){
+            completionCode();
+        }
     }
     private void completionCode() {//모든 읽고쓰는 객체를 닫고 프로그램 강제 종료
         System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");

@@ -1,8 +1,5 @@
 package CatchTable;
 
-import CatchTable.adminReservation;
-import CatchTable.customerReservation;
-
 public class management {
     database database;
     adminReservation adminReservation;
