@@ -21,6 +21,9 @@ public class database {
     PrintWriter reserveManagementWrite;
     PrintWriter reserveWrite;
 
+    Set<String> IdSet = new HashSet<>();
+    Set<String> StoreSet = new HashSet<>();
+    Map<String,Integer> StoreTime=new HashMap<>();
     public database() {
         try {
             accountWrite = new PrintWriter(new FileWriter("account.txt", true));
@@ -51,7 +54,6 @@ public class database {
     private boolean isValidAccount(int count, Scanner sc) {
         //구성요소의 갯수가 count만큼 있는가
         //[ID]+[\t]+[PW]+[\t]+[사장 고객 여부]+[\n]
-        Set<String> set = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -61,7 +63,7 @@ public class database {
                 isValidString(0,part[0]);
                 isValidString(0,part[1]);
                 isValidCustomerOwner(0,part[2]);
-                isDuplicate(set, part[0]);
+                isDuplicate(IdSet, part[0]);
             }
         }
         return true;
@@ -70,7 +72,6 @@ public class database {
     private boolean isValidStore(int count, Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[영업 시작 시간]+[\t]+[영업 종료 시간]+[\n]
         Set<String> set = new HashSet<>();
-        Set<String> set2 = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -81,8 +82,13 @@ public class database {
                 isValidString(0,part[1]);
                 isValidTime(0,part[2]);
                 isValidTime(0, part[3]);
-                isDuplicate(set, part[0]);
-                isDuplicate(set2, part[1]);
+                isDuplicate(StoreSet, part[0]);
+                isDuplicateStoreId(set, part[1]);
+                String sT=part[2].replace(":","");
+                String eT=part[3].replace(":","");
+                int StartTime=Integer.parseInt(sT);
+                int EndTime=Integer.parseInt(eT);
+                this.StoreTime.put(part[0],StartTime*10000+EndTime);//가게이름,10001800 으로저장
             }
         }
         return true;
@@ -101,6 +107,12 @@ public class database {
                 isValidTime(0,part[1]);
                 isValidInt(0,part[2]);
                 isDuplicateReserveManagement(set, part[0],part[1]);
+                String time=part[1].replace(":","");
+                int t=Integer.parseInt(time);
+                int storeTime=this.StoreTime.get(part[0]);
+                if(storeTime/10000>t||storeTime%10000<t){
+                    completionCode();
+                }
             }
         }
         return true;
@@ -108,6 +120,7 @@ public class database {
 
     private boolean isValidReserve(int count, Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[날짜]+[\t]+[시간]+[\t]+[예약 인원]+[\n]
+        Set<String> set = new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -119,6 +132,13 @@ public class database {
                 isValidDate(0,part[2]);
                 isValidTime(0,part[3]);
                 isValidInt(0,part[4]);
+                isVaildStoreNameandStoreId(part[0], part[1]);
+                String time=part[3].replace(":","");
+                int t=Integer.parseInt(time);
+                int storeTime=this.StoreTime.get(part[0]);
+                if(storeTime/10000>t||storeTime%10000<t){
+                    completionCode();
+                }
             }
         }
         return true;
@@ -159,7 +179,7 @@ public class database {
     }
 
     public boolean isValidDate(int a, String s) {//날짜 문자열이 조건에 맞는가 2024/04/28
-        String regex = "^20(2[3-9]|[3-9][0-9]|2[1-9][0-9]{2}|[3-9][0-9]{3})/(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1])$";//정규표현식
+        String regex = "^20(2[4-9]|[3-9][0-9]|2[1-9][0-9]{2}|[3-9][0-9]{3})/(0[1-9]|1[0-2])/(0[1-9]|[1-2][0-9]|3[0-1])$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
         if (a == 0) {//무결성 검사파트
@@ -223,26 +243,60 @@ public class database {
         if(date.isLeapYear()){//윤년이라면
             if(month==2){//2월이라면
                 return day <= 29;
+            }switch (month) {
+                case 4:
+                case 6:
+                case 9:
+                case 11:
+                    return day <= 30; // 4, 6, 9, 11월은 30일까지 있음
+                default:
+                    return day <= 31; // 나머지 달은 31일까지 있음
             }
         }
         else{//윤년이 아니라면
             if(month==2){
                 return day <= 28;
             }
-        }return true;
+            switch (month) {
+                case 4:
+                case 6:
+                case 9:
+                case 11:
+                    return day <= 30; // 4, 6, 9, 11월은 30일까지 있음
+                default:
+                    return day <= 31; // 나머지 달은 31일까지 있음
+            }
+        }
     }
-    public void isDuplicate(Set set, String object) {
+    private void isDuplicate(Set set, String object) {
         if (!set.add(object)) {
             completionCode();
         }
     }
-    public void isDuplicateReserveManagement(Set set, String key, String value) {
-        Map<String, String> map= new HashMap<>();
-        map.put(key, value);
-        if(!set.add(map)){
+    private void isDuplicateStoreId(Set set, String object) {
+        if (!set.add(object)) {
+            completionCode();
+        }if(this.IdSet.add(object)){
             completionCode();
         }
     }
+    private void isDuplicateReserveManagement(Set set, String key, String value) {
+        Map<String, String> map= new HashMap<>();
+        map.put(key, value);
+        if(!set.add(map)||!this.StoreSet.contains(key)){
+            completionCode();
+        }if(this.StoreSet.add(key)){
+            completionCode();
+        }
+    }
+    private void isVaildStoreNameandStoreId(String name, String id) {
+        if (this.StoreSet.add(name)) {
+            completionCode();
+        }if(this.IdSet.add(id)){
+            completionCode();
+        }
+    }
+
     private void completionCode() {//모든 읽고쓰는 객체를 닫고 프로그램 강제 종료
         System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
         this.account.close();
