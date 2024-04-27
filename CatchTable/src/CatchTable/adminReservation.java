@@ -48,6 +48,7 @@ public class adminReservation {// 사장이 예약 관리
             System.out.print("매장 이름: ");
             storeName = scan.nextLine();
             storeName = storeName .replaceAll("\\s+", "");
+
             try { // 파일 내 Scanner위치 초기화
                 database.store = new Scanner(new File("store.txt"));
                 while (database.store.hasNextLine()) {// 매장이름 중복 확인
@@ -250,9 +251,13 @@ public class adminReservation {// 사장이 예약 관리
                             return;
                         }
                         try {
-                            Integer.parseInt(maxCapacityStr);
-                        }catch(Exception e) {
-                            System.out.println("[오류] 최대 인원 범위오류");
+                            long maxCapacity = Long.parseLong(maxCapacityStr);
+                            if (maxCapacity > Integer.MAX_VALUE) {
+                                System.out.println("[오류] 최대 인원 범위 오류");
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("[오류] 최대 인원의 형식이 올바르지 않습니다.");
                             return;
                         }
 

@@ -175,6 +175,11 @@ public class output {
     private void quit() {
         System.out.println("\n프로그램을 종료합니다.");
         scan.close();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         System.exit(0);
     }
 
