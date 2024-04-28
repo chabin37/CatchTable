@@ -24,7 +24,9 @@ public class database {
     Set<String> IdSet = new HashSet<>();
     Set<String> StoreSet = new HashSet<>();
     Map<String,Integer> StoreTime=new HashMap<>();
-    Map<String,ArrayList<Integer>> ReserveTimeandPeople=new HashMap<>();
+    Map<String,ArrayList<Integer>> ReserveTimeandPeople=new HashMap<>();//매장명-시간, 인원수, 시간, 인원수...
+    Map<String,String> IdOwnerCustomer=new HashMap<>();//ID, 사장고객
+    Map<String,Map<String,Map<String,Integer>>> StoreReserveDateTime=new HashMap<>();
     public database() {
         try {
             accountWrite = new PrintWriter(new FileWriter("account.txt", true));
@@ -65,6 +67,7 @@ public class database {
                 isValidString(0,part[1]);
                 isValidCustomerOwner(0,part[2]);
                 isDuplicate(IdSet, part[0]);
+                this.IdOwnerCustomer.put(part[0],part[2]);
             }
         }
         return true;
@@ -90,6 +93,7 @@ public class database {
                 int StartTime=Integer.parseInt(sT);
                 int EndTime=Integer.parseInt(eT);
                 this.StoreTime.put(part[0],StartTime*10000+EndTime);//가게이름,10001800 으로저장
+                if(!this.IdOwnerCustomer.get(part[1]).equals("사장"))completionCode();
             }
         }
         return true;
@@ -114,7 +118,7 @@ public class database {
                 if(storeTime/10000>t||storeTime%10000<t){
                     completionCode();
                 }
-                String people=part[2].replace(":","");
+                String people=part[2];
                 int p=Integer.parseInt(people);
                 if(this.ReserveTimeandPeople.containsKey(part[0])){//이미 있으면, 업데이트
                     var temp=ReserveTimeandPeople.get(part[0]);
@@ -125,7 +129,7 @@ public class database {
                     ArrayList<Integer> arr=new ArrayList();
                     arr.add(t);
                     arr.add(p);
-                    this.ReserveTimeandPeople.put(part[0], arr);//매장명-예약시간과 인원 추가
+                    this.ReserveTimeandPeople.put(part[0], arr);//매장명-예약시간과 인원 추가 1800, 50
                 }
             }
         }
@@ -150,20 +154,59 @@ public class database {
                 String time=part[3].replace(":","");
                 int t=Integer.parseInt(time);
                 int storeTime=this.StoreTime.get(part[0]);
-                if(storeTime/10000>t||storeTime%10000<t){
+                if(storeTime/10000>t||storeTime%10000<t) {
                     completionCode();
-                }//3이 시간 4가 인원
+                }
                 var temparr=this.ReserveTimeandPeople.get(part[0]);
-                int temp=-1;
-                for(int i=0;i<temparr.size();i+=2){//시간 확인, 시간은 1000 1230 이렇게 저장
+                int q=0;
+                for (int i=0;i<temparr.size();i+=2){//시간대가 1800으로 저장되어있는데, 인원수도 1800일 수 있음으로 for문
                     if(temparr.get(i)==t){
-                        temp=i;
+                        q++;
                     }
-                }if(temp==-1){
-                    completionCode();
-                }//temp가 예약 날짜이므로, 그 날짜의 최대인원보다 적은지 확인
-                if(temparr.get(temp+1)<Integer.parseInt(part[4])){
-                    completionCode();
+                }if(q==0)completionCode();//시간대가 없으면 종료
+                if(this.IdOwnerCustomer.get(part[1]).equals("고객")){//map 구조 : {매장이름:{날짜:{시간:인원}}}
+                    if(this.StoreReserveDateTime.containsKey(part[0])){
+                        if(this.StoreReserveDateTime.get(part[0]).containsKey(part[2])){
+                           if(this.StoreReserveDateTime.get(part[0]).get(part[2]).containsKey(part[3])){
+                               int temp=this.StoreReserveDateTime.get(part[0]).get(part[2]).get(part[3]);
+                               temp+=Integer.parseInt(part[4]);
+                               this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],temp);
+                           }else this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],Integer.parseInt(part[4]));
+                        }else{//this.StoreReserveDateTime.get(part[0]).put(part[2],Map.of(part[3],Integer.parseInt(part[4])));
+                            Map<String,Integer> tempmap1=new HashMap<>();
+                            tempmap1.put(part[3],Integer.parseInt(part[4]));
+                            this.StoreReserveDateTime.get(part[0]).put(part[2],tempmap1);
+                        }
+                    }else {//this.StoreReserveDateTime.put(part[0], Map.of(part[2], Map.of(part[3], Integer.parseInt(part[4]))));
+                        Map<String,Map<String,Integer>> tempmap1=new HashMap<>();
+                        Map<String,Integer> tempmap2=new HashMap<>();
+                        tempmap2.put(part[3],Integer.parseInt(part[4]));
+                        tempmap1.put(part[2],tempmap2);
+                        this.StoreReserveDateTime.put(part[0],tempmap1);
+                    }
+                }else completionCode();
+            }
+        }//해당 매장의 매장이름으로 예약 시간에 맞는 인원대가 설정됬는지 확인
+        for (Map.Entry<String, Map<String, Map<String, Integer>>> storeEntry : StoreReserveDateTime.entrySet()) {
+            String storeName = storeEntry.getKey();//매장명
+            Map<String, Map<String, Integer>> dates = storeEntry.getValue();
+
+            for (Map.Entry<String, Map<String, Integer>> dateEntry : dates.entrySet()) {
+                String date = dateEntry.getKey();//날짜
+                Map<String, Integer> times = dateEntry.getValue();
+
+                for (Map.Entry<String, Integer> timeEntry : times.entrySet()) {
+                    String time = timeEntry.getKey();//시간
+                    Integer people = timeEntry.getValue();//인원
+                    ArrayList<Integer> temparr=this.ReserveTimeandPeople.get(storeName);//매장이름으로 해당매장 시간, 인원 배열 가져오기
+                    for(int i=0;i<temparr.size();i+=2){//시간대가 1800으로 저장되어있는데, 인원수도 1800일 수 있음으로 for문
+                        int temptime=Integer.parseInt(time.replace(":",""));
+                        if(temparr.get(i)==temptime){//i+1에 최대 인원
+                            if(temparr.get(i+1)<people){//최대인원보다 예약인원이 많으면
+                                completionCode();
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -224,7 +267,7 @@ public class database {
     }
 
     public boolean isValidTime(int a, String s) {//시간 문자열이s 조건에 맞는가 10:00
-        String regex = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$";//정규표현식
+        String regex = "^([01]{1}[0-9]|2[0-3]):[0-5][0-9]$";//정규표현식
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(s);
         if (a == 0) {//무결성 검사파트
