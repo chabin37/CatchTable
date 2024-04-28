@@ -229,13 +229,14 @@ public class database {
     private boolean isValidStringStore(int a, String s) {
         if (a == 0) {//무결성 검사파트
             if (!s.contains(" ")) {
-                if(s.length()<=15){
-                    return true;
-                }else completionCode();
-            }else return true;
+                return true;
+            }else{
+                completionCode();
+            }
         } else {//입력이 정확한지 확인
             return !s.contains(" ")&&s.length() <= 15;
-        }return true;
+        }
+        return false;
     }
 
     //int a=0인 경우 데이터 무결성 검사용, int a!=0인 경우 입력받는 데 사용.
@@ -390,7 +391,11 @@ public class database {
         this.reserveWrite.close();
         this.reserveManagementWrite.close();
         this.storeWrite.close();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         System.exit(0);
     }
 }
-

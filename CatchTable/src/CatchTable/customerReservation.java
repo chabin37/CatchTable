@@ -185,16 +185,16 @@ public class customerReservation {
         }
        /*
         try {
-            database.reserveManagement = new Scanner(new File("reserveManagement.txt"));
-            database.reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
+            CatchTable.database.reserveManagement = new Scanner(new File("reserveManagement.txt"));
+            CatchTable.database.reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
         } catch (IOException e) {
             System.out.println("야 왜 안되냐");
             System.exit(0);
         }
 
-        while (database.reserveManagement.hasNextLine()) {
+        while (CatchTable.database.reserveManagement.hasNextLine()) {
             int i3=1;
-            String reserveInfo2 = database.reserveManagement.nextLine();
+            String reserveInfo2 = CatchTable.database.reserveManagement.nextLine();
             String[] reserveData= reserveInfo2.split("\t"); // 매장 정보 데.파.는 \t로되있음.
             String reserveStoreName = reserveData[0]; // 첫 번째 요소인 매장 이름 추출
             String reserveTime = reserveData[1]; // 두 번째 요소인 매장 시간 추출
@@ -237,6 +237,7 @@ public class customerReservation {
             database.reserveWrite = new PrintWriter(new FileWriter("reserve.txt", true));
             System.out.println("[예약완료]");
             System.out.println("-".repeat(20));
+            System.out.println(temp.get(storeIndex-1));
             System.out.println("예약 날짜 및 시간: "+reservationDate+" "+time.get(Integer.parseInt(FinalreserveIndex)-1));
             System.out.println("예약인원: "+FinalreserveNum);
             System.out.println("-".repeat(20));

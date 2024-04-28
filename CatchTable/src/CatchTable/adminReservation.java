@@ -48,6 +48,7 @@ public class adminReservation {// 사장이 예약 관리
             System.out.print("매장 이름: ");
             storeName = scan.nextLine();
             storeName = storeName.trim();
+            storeName = storeName.replaceAll("\\s", "");
             if (storeName.isEmpty()) {
                 System.out.println("[오류] 매장 이름을 입력하세요.");
                 continue Loop1;
