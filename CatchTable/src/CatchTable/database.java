@@ -115,9 +115,16 @@ public class database {
                 String time=part[1].replace(":","");
                 int t=Integer.parseInt(time);
                 int storeTime=this.StoreTime.get(part[0]);
-                if(storeTime/10000>t||storeTime%10000<t){
-                    completionCode();
+                if((storeTime/10000)<(storeTime%10000)) {
+                    if(storeTime/10000>t||storeTime%10000<t){
+                        completionCode();
+                    }
+                }else {
+                    if(storeTime/10000>t&&storeTime%10000<t){ // 2200    0100    0300   2100
+                        completionCode();
+                    }
                 }
+
                 String people=part[2];
                 int p=Integer.parseInt(people);
                 if(this.ReserveTimeandPeople.containsKey(part[0])){//이미 있으면, 업데이트
@@ -154,8 +161,14 @@ public class database {
                 String time=part[3].replace(":","");
                 int t=Integer.parseInt(time);
                 int storeTime=this.StoreTime.get(part[0]);
-                if(storeTime/10000>t||storeTime%10000<t) {
-                    completionCode();
+                if((storeTime/10000)<(storeTime%10000)) {
+                    if(storeTime/10000>t||storeTime%10000<t){
+                        completionCode();
+                    }
+                }else {
+                    if(storeTime/10000>t&&storeTime%10000<t){
+                        completionCode();
+                    }
                 }
                 var temparr=this.ReserveTimeandPeople.get(part[0]);
                 int q=0;
@@ -167,11 +180,11 @@ public class database {
                 if(this.IdOwnerCustomer.get(part[1]).equals("고객")){//map 구조 : {매장이름:{날짜:{시간:인원}}}
                     if(this.StoreReserveDateTime.containsKey(part[0])){
                         if(this.StoreReserveDateTime.get(part[0]).containsKey(part[2])){
-                           if(this.StoreReserveDateTime.get(part[0]).get(part[2]).containsKey(part[3])){
-                               int temp=this.StoreReserveDateTime.get(part[0]).get(part[2]).get(part[3]);
-                               temp+=Integer.parseInt(part[4]);
-                               this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],temp);
-                           }else this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],Integer.parseInt(part[4]));
+                            if(this.StoreReserveDateTime.get(part[0]).get(part[2]).containsKey(part[3])){
+                                int temp=this.StoreReserveDateTime.get(part[0]).get(part[2]).get(part[3]);
+                                temp+=Integer.parseInt(part[4]);
+                                this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],temp);
+                            }else this.StoreReserveDateTime.get(part[0]).get(part[2]).put(part[3],Integer.parseInt(part[4]));
                         }else{//this.StoreReserveDateTime.get(part[0]).put(part[2],Map.of(part[3],Integer.parseInt(part[4])));
                             Map<String,Integer> tempmap1=new HashMap<>();
                             tempmap1.put(part[3],Integer.parseInt(part[4]));
@@ -234,7 +247,7 @@ public class database {
                 }else completionCode();
             }else return true;
         } else {//입력이 정확한지 확인
-                return !s.contains(" ")&&s.length() <= 15&&s.matches("^[a-zA-Z0-9\\p{Punct}]+$");
+            return !s.contains(" ")&&s.length() <= 15&&s.matches("^[a-zA-Z0-9\\p{Punct}]+$");
         }return true;
     }
     public boolean isValidCustomerOwner(int a, String s){
@@ -380,3 +393,4 @@ public class database {
         System.exit(0);
     }
 }
+
