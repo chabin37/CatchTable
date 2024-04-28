@@ -87,41 +87,7 @@ public class customerReservation {
         System.out.println("예약 가능한 날짜입니다.");
         System.out.println("예약 가능한 시간대");
         int i2=0; //1. 12:00 | 최대 인원: 20 <-여기에서 1. 담당할 애
-       /* while (database.reserveManagement.hasNextLine()) {
-            String reserveInfo = database.reserveManagement.nextLine();
-            String[] reserveData= reserveInfo.split("\t"); // 매장 정보 데.파.는 \t로되있음.
-            String reserveStoreName=reserveData[0];//첫번쨰 요소인 매장이름
-            String reserveTime = reserveData[1]; // 두 번째 요소인 매장 시간 추출
-            String maxReserve = reserveData[2]; //일단 기본설정된 최대인원추출(타예약자들 배제해서 구하는건 아래에서 ㄱㄱ)
-            String PresentReserve = ""; //현재까지 예약한 타예약자들 수
-//           System.out.println(i2+". "+reserveTime+" | 최대 인원: "+maxReserve);
 
-            try {
-                //타예약자들 예약 몇명했는지 최신화하기
-                database.reserve = new Scanner(new File("reserve.txt"));
-                while(database.reserve.hasNextLine()) {
-                    String line = database.reserve.nextLine();
-                    String[] parts = line.split("\t");
-                    if(parts[0].equals(reserveStoreName)&&parts[3].equals(reserveTime)) {
-                        PresentReserve=parts[4];
-                        break;
-                    }
-                }
-            }catch(Exception e){
-                System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
-                System.exit(0);
-            }
-            int IntmaxReserve=Integer.parseInt(maxReserve);
-            int IntPresentReserve=0;
-            if(PresentReserve =="") {
-                IntPresentReserve=0;
-            }else {
-                IntPresentReserve=Integer.parseInt(PresentReserve);
-            }
-            System.out.println(i2+1+". "+reserveTime+" | 최대 인원: "+(IntmaxReserve-IntPresentReserve));
-            i2++;
-        }
-        */
         List<String> time =new ArrayList<>();
         List<Integer> max =new ArrayList<>();
         try {
@@ -171,13 +137,7 @@ public class customerReservation {
         System.out.print("희망하는 번호와 인원을 입력해주세요: ");
         String reserveHope = scan.nextLine();
 
-        // 입력된 문자열에서 공백(" ")의 위치를 찾음
-        /*
-        int spaceIndex = reserveHope.indexOf(' ');
-        if (spaceIndex == -1) { //희망하는 번호와 인원수를  ‘␣’으로 구별하지 않은 경우
-            System.out.println("[오류] 번호와 인원을 구분할 수 없습니다. ");
-            return;
-        }*/
+
         String[] tokens = reserveHope.split(" ");
         if (tokens.length != 2 ) {
             System.out.println("[오류] 번호와 인원을 구분할 수 없습니다.");
@@ -188,7 +148,11 @@ public class customerReservation {
 
 
         //-입력 검사
-        if(!FinalreserveNum.matches("^[0-9]+$")) { //아니 애초에 예약 희망 인원수가 양의 정수가 맞느지 검사
+//        if(!FinalreserveNum.matches("^[0-9]+$")) { //아니 애초에 예약 희망 인원수가 양의 정수가 맞느지 검사
+//            System.out.println("[오류] 인원수는 1 이상의 정수값이어야 합니다.");
+//            return;
+//        }
+        if (!FinalreserveNum.matches("^[1-9][0-9]*$")) { // 0을 제외한 양의 정수 확인
             System.out.println("[오류] 인원수는 1 이상의 정수값이어야 합니다.");
             return;
         }
@@ -336,8 +300,7 @@ public class customerReservation {
         System.out.print("원하는 메뉴를 선택해 주세요: ");
         String inputMenu = scan.nextLine(); // 메뉴 선택 입력값
 
-        if (!inputMenu.matches("^[0-9]+$")) { // 숫자가 입력되지 않았을 때
-            System.out.println("[오류] 올바르지 않은 입력입니다.");
+        if (!inputMenu.matches("^[0-9]+$")) {
             return;
         }
 
@@ -346,7 +309,6 @@ public class customerReservation {
         try {
             reservationIndex= Integer.parseInt(inputMenu);
         }catch(Exception e) {
-            System.out.println("[오류] 올바르지 않은 입력입니다.");
             return;
         }
 //

@@ -246,7 +246,9 @@ public class adminReservation {// 사장이 예약 관리
                             }
                         }
                         LocalTime inputTime = LocalTime.parse(time);
-                        if (!(inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.equals(close) || inputTime.isBefore(close))) {
+                        if (!(open.isBefore(close) && (inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.equals(close) || inputTime.isBefore(close)) ||
+                                open.isAfter(close) && ((inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.isBefore(LocalTime.MAX)) ||
+                                        (inputTime.equals(close) || inputTime.isBefore(close)) && (inputTime.isAfter(LocalTime.MIN)||inputTime.equals(LocalTime.MIN))))) {
                             System.out.println("[오류] 예약 시간은 영업 시간 사이에 있어야 합니다.");
                             return;
                         }
