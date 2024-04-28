@@ -24,6 +24,7 @@ public class database {
     Set<String> IdSet = new HashSet<>();
     Set<String> StoreSet = new HashSet<>();
     Map<String,Integer> StoreTime=new HashMap<>();
+    Map<String,ArrayList<Integer>> ReserveTimeandPeople=new HashMap<>();
     public database() {
         try {
             accountWrite = new PrintWriter(new FileWriter("account.txt", true));
@@ -113,6 +114,19 @@ public class database {
                 if(storeTime/10000>t||storeTime%10000<t){
                     completionCode();
                 }
+                String people=part[2].replace(":","");
+                int p=Integer.parseInt(people);
+                if(this.ReserveTimeandPeople.containsKey(part[0])){//이미 있으면, 업데이트
+                    var temp=ReserveTimeandPeople.get(part[0]);
+                    temp.add(t);
+                    temp.add(p);
+                    ReserveTimeandPeople.put(part[0],temp);
+                }else {
+                    ArrayList<Integer> arr=new ArrayList();
+                    arr.add(t);
+                    arr.add(p);
+                    this.ReserveTimeandPeople.put(part[0], arr);//매장명-예약시간과 인원 추가
+                }
             }
         }
         return true;
@@ -137,6 +151,18 @@ public class database {
                 int t=Integer.parseInt(time);
                 int storeTime=this.StoreTime.get(part[0]);
                 if(storeTime/10000>t||storeTime%10000<t){
+                    completionCode();
+                }//3이 시간 4가 인원
+                var temparr=this.ReserveTimeandPeople.get(part[0]);
+                int temp=-1;
+                for(int i=0;i<temparr.size();i+=2){//시간 확인, 시간은 1000 1230 이렇게 저장
+                    if(temparr.get(i)==t){
+                        temp=i;
+                    }
+                }if(temp==-1){
+                    completionCode();
+                }//temp가 예약 날짜이므로, 그 날짜의 최대인원보다 적은지 확인
+                if(temparr.get(temp+1)<Integer.parseInt(part[4])){
                     completionCode();
                 }
             }
