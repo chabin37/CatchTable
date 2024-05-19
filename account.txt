@@ -1,2 +1,3 @@
 Dd	dd	고객
+Aa	dd	고객
 T	t	사장
