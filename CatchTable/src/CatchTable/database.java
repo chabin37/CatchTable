@@ -130,7 +130,7 @@ public class database {
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
-            if (part.length <= 1) {//갯수만큼 없는 경우
+            if (part.length <= 2) {//갯수만큼 없는 경우
                 completionCode();
             } else {//갯수만큼 있는 경우
                 isValidStringStore(0, part[0]);
@@ -290,7 +290,6 @@ public class database {
 
     private void isValidWaiting(Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[순서]+[\t]+[웨이팅 인원]+[\n]
-        Set<String> set = new HashSet<>();
         int temp=1;
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
@@ -302,9 +301,8 @@ public class database {
                 isValidString(0, part[1]);
                 isValidInt(0,part[2]);
                 isValidInt(0,part[3]);
+                if(Integer.parseInt(part[3])>1000)completionCode();//1000명이상이면 X
                 if(Integer.parseInt(part[2]) != temp)completionCode();//순서무결성검사
-                isValidSet(StoreSet, part[0]);
-                isValidSet(IdSet,part[1]);
                 isValidStoreNameandStoreId(part[0],part[1]);
             }
             temp++;
