@@ -191,7 +191,8 @@ public class output {
             System.out.println("1.매장등록");
             System.out.println("2.예약관리");
             System.out.println("3.예약현황");
-            System.out.println("4.로그아웃");
+            System.out.println("4.웨이팅현황");
+            System.out.println("5.로그아웃");
             System.out.print("메뉴를 선택해 주세요:");
             select=scan.nextLine();
             //----검사-----
@@ -211,7 +212,8 @@ public class output {
                 case 1 -> management.adminReservation.storeJoin(ID);// 매장등록
                 case 2 -> management.adminReservation.reserveManAdmin(ID);// 예약관리
                 case 3 -> management.adminReservation.reserveNow(ID);// 예약현황
-                case 4 -> {
+                case 4 -> management.adminWaiting.waitingManage(ID);// 웨이팅현황
+                case 5 -> {
                     System.out.println("\n*로그아웃합니다.");// 로그아웃
                     return;
                 }
@@ -227,7 +229,8 @@ public class output {
             System.out.println("\n[메인메뉴]");
             System.out.println("1.예약하기");
             System.out.println("2.예약관리");
-            System.out.println("3.로그아웃");
+            System.out.println("3.웨이팅");
+            System.out.println("4.로그아웃");
             System.out.print("메뉴를 선택해 주세요:");
             select=scan.nextLine();
             //----검사-----
@@ -245,7 +248,8 @@ public class output {
             switch (mainFlag) {
                 case 1 -> management.customerReservation.reserve(ID);// 예약하기
                 case 2 -> management.customerReservation.reserveManCustomer(ID);// 예약관리
-                case 3 -> {
+                case 3 -> management.customerWaiting.isWaiting(ID);// 웨이팅
+                case 4 -> {
                     System.out.println("\n*로그아웃합니다.");// 로그아웃
                     return;
                 }
@@ -254,7 +258,7 @@ public class output {
         }
     }
 
-    // output.java 에러출력
+    // CatchTable.output.java 에러출력
     private void errPrint(int errflag) {
         switch (errflag) {
             case 1 -> System.out.println("[오류] 존재하지 않는 계정입니다.");
@@ -269,4 +273,3 @@ public class output {
 
     }
 }
-
