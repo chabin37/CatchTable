@@ -301,7 +301,6 @@ public class database {
                 isValidString(0, part[1]);
                 isValidInt(0,part[2]);
                 isValidInt(0,part[3]);
-                if(Integer.parseInt(part[3])>1000)completionCode();//1000명이상이면 X
                 int a=0;
                 if(temp.containsKey(part[0])){
                     a=temp.get(part[0])+1;
