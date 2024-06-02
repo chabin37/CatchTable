@@ -3,3 +3,4 @@ Aa	dd	고객
 T	t	사장
 F	F	사장
 Bb	dd	고객
+q	q	사장

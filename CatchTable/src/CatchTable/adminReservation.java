@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 //실제 동작(읽고쓰기)(사장)
 public class adminReservation {// 사장이 예약 관리
@@ -164,20 +162,32 @@ public class adminReservation {// 사장이 예약 관리
         while (true) {
             int manageNum=0;
             List<String> reserveData=new ArrayList<>();
+
+            Map<String, Map<Integer, Integer>> currentTables = new HashMap<>();
+            Map<String, Integer> peopleLeft = new HashMap<>();
             String select;
             try { // 파일 내 Scanner위치 초기화
                 database.reserveManagement = new Scanner(new File("reserveManagement.txt"));
-                while (database.reserveManagement.hasNextLine()) {
+                while(database.reserveManagement.hasNextLine()) {
                     String line = database.reserveManagement.nextLine();
-                    String[] part = line.split("\t");
-                    // System.out.println(line);//출력확인
-                    if (part[0].equals(storeName)) {
-                        manageNum++;
-                        reserveData.add(part[1]);
-                        reserveData.add(part[2]);
+                    String[] parts = line.split("\t");
+
+                    if(parts[0].equals(storeName)) {
+                        int sumMax = 0;
+                        String[] tables = parts[2].split(" ");
+
+                        Map<Integer, Integer> currentTable = new HashMap<>();
+
+                        for(int j = 0; j < tables.length; j += 2) {
+                            int maxTable = Integer.parseInt(tables[j]);
+                            int tableCnt = Integer.parseInt(tables[j + 1]);
+                            currentTable.put(maxTable, tableCnt);
+                            sumMax += maxTable * tableCnt;
+                        }
+                        currentTables.put(parts[1], currentTable);
+                        peopleLeft.put(parts[1], sumMax);
                     }
                 }
-
             } catch (Exception e) {
                 System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
                 System.exit(0);
@@ -188,23 +198,28 @@ public class adminReservation {// 사장이 예약 관리
             // 출력
             System.out.println("[예약 관리]");
             System.out.println("매장 이름: "+storeName);
-            System.out.println("영업 시간: "+openTime+"~"+closeTime);
+            System.out.println("영업 시간: "+openTime+" ~ "+closeTime);
             System.out.println();
-            if(manageNum==0) {
+            if(currentTables.isEmpty()) {
                 System.out.println("현재 설정된 예약이 없습니다.\n");
-            }else {
+            } else {
                 System.out.println("현재 설정된 예약 목록");
                 System.out.println("----------------------------------------");
-                for(int i=0; i<manageNum*2; i=i+2) {
-                    System.out.println(reserveData.get(i)+"|최대 인원: "+reserveData.get(i+1));
+                for(String time : currentTables.keySet()) {
+                    System.out.print(time + " | 최대 인원: " + peopleLeft.get(time) + " ");
+                    String print = "";
+                    for(int maxTable : currentTables.get(time).keySet()) {
+                        print += (String.valueOf(maxTable) + "인석: " + String.valueOf(currentTables.get(time).get(maxTable)) + ", ");
+                    }
+                    System.out.println("(" + print.substring(0, print.length() - 2) + ")");
                 }
                 System.out.println("----------------------------------------");
             }
             System.out.println("[메뉴]");
-            System.out.println("1. 예약 등록");
+            System.out.println("1. 예약 시간 및 인원 등록");
             System.out.println("2. 예약 삭제");
             System.out.println("3. 돌아가기");
-            System.out.print("메뉴를 선택해 주세요:");
+            System.out.print("메뉴를 선택해 주세요: ");
             // 입력
             select = scan.nextLine();
 
@@ -224,128 +239,159 @@ public class adminReservation {// 사장이 예약 관리
             switch (flag) {
                 case 1 -> {
                     System.out.println("[예약 등록]");
-                    System.out.print("등록할 시간과 최대 인원을 입력해주세요 (예: 09:00 15):");
+                    System.out.print("등록할 시간과 테이블 정보를 입력해주세요 (예: 09:00 2 4): ");
                     String input = scan.nextLine();
-                    String[] tokens = input.split("\\s+");
-                    if (tokens.length % 2 != 0) {
+
+                    Map<String, Map<Integer, Integer>> inputTables = new HashMap<>();
+                    String firstTime = "";
+
+                    try {
+                        String[] parts = input.split(" ");
+                        firstTime = parts[0];
+                        for (int i = 0; i < parts.length; ) {
+                            String time = parts[i++];
+
+                            if(!database.isValidTime(1, time)) {
+                                throw new Exception();
+                            }
+                            Map<Integer, Integer> tableInfo = new HashMap<>();
+                            while (i < parts.length && !parts[i].contains(":")) {
+                                int maxPeople = Integer.parseInt(parts[i++]);
+                                int tableCount = Integer.parseInt(parts[i++]);
+                                tableInfo.put(maxPeople, tableCount);
+                            }
+                            inputTables.put(time, tableInfo);
+                        }
+                    } catch (Exception e) {
                         System.out.println("[오류] 올바르지 않은 형식입니다");
                         return;
                     }
-                    for (int i = 0; i < tokens.length; i += 2) {
-                        String time = tokens[i];
-                        String maxCapacityStr = tokens[i + 1];
 
-                        // 표준 시간 형식이 맞는지 확인
-                        if (!database.isValidTime(1, time)) {
-                            System.out.println("[오류] 올바르지 않은 형식입니다.");
-                            return;
-                        }
-                        for(int j=0; j<manageNum*2; j=j+2) {
-                            if(time.equals(reserveData.get(j))) {
-                                System.out.println("[오류] 이미 등록된 시간을 포함하고 있습니다.");
+                    // 저장된 자료 자체 무결성 검사
+
+                    for(String time : inputTables.keySet()) {
+//						if(peopleLeft.containsKey(time)) {
+//							System.out.println("[오류] 이미 등록된 시간을 포함하고 있습니다.");
+//							return;
+//						}
+//
+//						LocalTime inputTime = LocalTime.parse(time);
+//						if (!(open.isBefore(close) && (inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.equals(close) || inputTime.isBefore(close)) ||
+//								open.isAfter(close) && ((inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.isBefore(LocalTime.MAX)) ||
+//										(inputTime.equals(close) || inputTime.isBefore(close)) && (inputTime.isAfter(LocalTime.MIN)||inputTime.equals(LocalTime.MIN))))) {
+//							System.out.println("[오류] 예약 시간은 영업 시간 사이에 있어야 합니다.");
+//							return;
+//						}
+
+                        for(int maxTable : inputTables.get(time).keySet()) {
+                            if (!database.isValidInt(1, String.valueOf(maxTable)) || !database.isValidInt(1, String.valueOf(inputTables.get(time).get(maxTable)))) {
+                                System.out.println("[오류] 테이블 수용 인원수와 해당 테이블의 개수는 1이상의 정수여야 합니다.");
                                 return;
                             }
                         }
-                        LocalTime inputTime = LocalTime.parse(time);
-                        if (!(open.isBefore(close) && (inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.equals(close) || inputTime.isBefore(close)) ||
-                                open.isAfter(close) && ((inputTime.equals(open) || inputTime.isAfter(open)) && (inputTime.isBefore(LocalTime.MAX)) ||
-                                        (inputTime.equals(close) || inputTime.isBefore(close)) && (inputTime.isAfter(LocalTime.MIN)||inputTime.equals(LocalTime.MIN))))) {
-                            System.out.println("[오류] 예약 시간은 영업 시간 사이에 있어야 합니다.");
-                            return;
-                        }
-                        if(!database.isValidInt(1, maxCapacityStr)) {
-                            System.out.println("[오류] 최대 인원은 양의 정수여야 합니다.");
-                            return;
-                        }
-                        try {
-                            long maxCapacity = Long.parseLong(maxCapacityStr);
-                            if (maxCapacity > Integer.MAX_VALUE) {
-                                System.out.println("[오류] 최대 인원 범위 오류");
-                                return;
-                            }
-                        } catch (NumberFormatException e) {
-                            System.out.println("[오류] 최대 인원의 형식이 올바르지 않습니다.");
-                            return;
-                        }
-
                     }
 
-                    for(int i=0; i<tokens.length; i=i+2) {
-                        if(!(i==tokens.length-2)) {
-                            System.out.print(tokens[i]+"에 "+tokens[i+1]+"명,");
-                        }else {
-                            System.out.print(tokens[i]+"에 "+tokens[i+1]+"명");
-                        }
+                    System.out.print(firstTime + "에 ");
+                    String print = "";
+                    for (int maxTable : inputTables.get(firstTime).keySet()) {
+                        print += (String.valueOf(maxTable) + "인석 " + String.valueOf(inputTables.get(firstTime).get(maxTable)) + "테이블/");
                     }
-                    System.out.print("을 예약 시간으로 등록하시겠습니까? (Yes/No): ");
+                    System.out.print(print.substring(0, print.length() - 1) + "을 등록하시겠습니까? (Yes/No): ");
+
                     input = scan.nextLine();
                     if (input.equals("No")) {
                         System.out.println("등록이 취소되었습니다.");
-                    } else {
-                        manageNum++;
-                        reserveData.add(tokens[0]);
-                        reserveData.add(tokens[1]);
+                    }
+                    else {
+                        // reserveManagement.txt 파일에 바뀐 테이블 정보 추가
                         try {
-                            database.reserveManagementWrite = new PrintWriter(new FileWriter("reserveManagement.txt", true));
-                            for (int i = 0; i < tokens.length; i = i + 2) {
-                                database.reserveManagementWrite.println(storeName + "\t" + tokens[i] + "\t" + tokens[i + 1]);
+                            FileWriter fw = new FileWriter(new File("reserveManagement.txt"), true);
+                            PrintWriter writer = new PrintWriter(fw);
+
+                            for(String time : inputTables.keySet()) {
+                                String modifiedData = "";
+
+                                modifiedData = (storeName + "\t" + time + "\t");
+                                for (int maxTable : inputTables.get(time).keySet()) {
+                                    modifiedData += (String.valueOf(maxTable) + " " + String.valueOf(inputTables.get(time).get(maxTable)) + " ");
+                                }
+                                writer.println(modifiedData.substring(0, modifiedData.length() - 1));
                             }
-                        } catch (Exception e) {
+
+                            writer.close();
+                        }  catch (Exception e) {
                             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
                             System.exit(0);
-                        } finally {
-                            database.reserveManagementWrite.close();
                         }
-                        System.out.println("등록되었습니다.");
+
+                        System.out.println("등록되었습니다");
                         return;
                     }
 
                 }
                 case 2 -> {
-                    System.out.println("[예약 삭제}");
-                    System.out.println();
+                    System.out.println("[예약 삭제]\n");
 
-
-                    System.out.println("현재 설정된 예약 목록");
-                    System.out.println("----------------------------------------");
-                    for(int i=0; i<manageNum*2; i=i+2) {
-                        System.out.println((i/2+1)+". "+reserveData.get(i)+"|최대 인원: "+reserveData.get(i+1));
-                    }
-                    System.out.println("----------------------------------------");
-
-                    System.out.print("예약 시간의 번호를 입력해 주세요:");
-                    int index;
-
-                    try {
-                        String input = scan.nextLine();
-                        input = input.replaceAll("\\s+", "");
-                        if (input.contains(".")) {
-                            index = Integer.parseInt(input.substring(0, input.indexOf(".")));
-                        } else {
-                            index = Integer.parseInt(input);
-                        }
-
-                        if (!(index > 0 && index <= manageNum)) {
-                            System.out.println("[오류] 존재하지 않는 항목입니다.");
-                            return;
-                        }
-                    } catch (NumberFormatException e) {
-                        System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
-                        return;
-                    }
-
-                    System.out.println();
-                    System.out.print(reserveData.get((index-1)*2)+"을 삭제하시겠습니까? (Yes/No):");
-                    String input=scan.nextLine();
-                    if (input.equals("No")) {
-                        System.out.println("예약삭제가 취소되었습니다.");
+                    if(currentTables.isEmpty()) {
+                        System.out.println("삭제할 수 있는 예약이 없습니다.\n");
                         return;
                     } else {
-                        String str=storeName+"\t"+reserveData.get((index-1)*2)+"\t"+reserveData.get((index-1)*2+1);
-                        removeReserve(idxRm(str,"reserveManagement.txt"),"reserveManagement.txt");
-                        System.out.println("예약삭제가 완료되었습니다.");
-                        return;
+                        List<String> reserveList = new ArrayList<>();
+                        reserveList.add(""); // 편의상 인덱스 1번부터.
+
+                        System.out.println("\n현재 설정된 예약 목록");
+                        System.out.println("----------------------------------------");
+                        for(String time : currentTables.keySet()) {
+                            System.out.print(reserveList.size() + ". " + time + " | 최대 인원: " + peopleLeft.get(time) + " ");
+                            reserveList.add(time);
+
+                            String print = "";
+                            for(int maxTable : currentTables.get(time).keySet()) {
+                                print += (String.valueOf(maxTable) + "인석: " + String.valueOf(currentTables.get(time).get(maxTable)) + ", ");
+                            }
+                            System.out.println("(" + print.substring(0, print.length() - 2) + ")");
+                        }
+                        System.out.println("----------------------------------------");
+
+                        System.out.print("삭제할 예약 시간의 번호를 입력해 주세요 : ");
+                        int index;
+
+                        try {
+                            String input = scan.nextLine();
+                            input = input.replaceAll("\\s+", "");
+                            if (input.contains(".")) {
+                                index = Integer.parseInt(input.substring(0, input.indexOf(".")));
+                            } else {
+                                index = Integer.parseInt(input);
+                            }
+
+                            if (!(index > 0 && index <= reserveList.size())) {
+                                System.out.println("[오류] 존재하지 않는 항목입니다.");
+                                return;
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
+                            return;
+                        }
+
+                        System.out.println();
+                        System.out.print(reserveList.get(index) +"을 삭제하시겠습니까? (Yes/No): ");
+                        String input=scan.nextLine();
+                        if (input.equals("No")) {
+                            System.out.println("삭제가 취소되었습니다.");
+                            return;
+                        } else {
+                            String str = storeName+"\t"+reserveList.get(index)+"\t";
+                            for (int maxTable : currentTables.get(reserveList.get(index)).keySet()) {
+                                str += (String.valueOf(maxTable) + " " + String.valueOf(currentTables.get(reserveList.get(index)).get(maxTable)) + " ");
+                            }
+                            removeReserve(idxRm(str,"reserveManagement.txt"),"reserveManagement.txt");
+                            System.out.println("예약삭제가 완료되었습니다.");
+                            return;
+                        }
                     }
+
+
 
                 } // 예약 삭제(Index 입력 -검사 if(!문자열.matches("^[0-9]+$"),범위)
                 default -> {
@@ -438,26 +484,38 @@ public class adminReservation {// 사장이 예약 관리
         }
 
         // 파일에서 예약 현황 가져오기
-        try {
-            // 파일에서 예약 현황 가져오기
-            database.reserve = new Scanner(new File("reserve.txt"));
+        List<String> listID = new ArrayList<>();
+        List<String> listDate = new ArrayList<>();
+        List<Integer> listPeople = new ArrayList<>();
+        listID.add("");
+        listDate.add("");
+        listPeople.add(0);
 
-            // 예약 현황 출력
-            while (database.reserve.hasNextLine()){
-                String line = database.reserve.nextLine();
-                String[] part = line.split("\t");
-                if (part[0].equals(storeName)) {
-                    reserveNum++;
-                    reserveData.add(part[1]);
-                    reserveData.add(part[2]);
-                    reserveData.add(part[3]);
-                    reserveData.add(part[4]);
+        try { // 파일 내 Scanner위치 초기화
+            database.reserveManagement = new Scanner(new File("reserve.txt"));
+            while(database.reserveManagement.hasNextLine()) {
+                String line = database.reserveManagement.nextLine();
+                String[] parts = line.split("\t");
+
+                if(parts[0].equals(storeName)) {
+                    int sumMax = 0;
+                    String[] tables = parts[4].split(" ");
+
+                    for(int j = 0; j < tables.length; j += 2) {
+                        int maxTable = Integer.parseInt(tables[j]);
+                        int tableCnt = Integer.parseInt(tables[j + 1]);
+                        sumMax += maxTable * tableCnt;
+                    }
+                    listID.add(parts[1]);
+                    listDate.add(parts[2] + " " + parts[3]);
+                    listPeople.add(sumMax);
                 }
             }
-
         } catch (Exception e) {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
+        } finally {
+            database.reserveManagement.close();
         }
         // 예약 현황 출력
         System.out.println("[예약관리]");
@@ -466,8 +524,8 @@ public class adminReservation {// 사장이 예약 관리
         System.out.println("예약 매장");
         System.out.println("----------------------------------------");
         System.out.println("["+storeName+"]");
-        for(int i=0; i<reserveNum*4; i=i+4) {
-            System.out.println((i/4+1)+". "+reserveData.get(i)+" "+reserveData.get(i+1)+" "+reserveData.get(i+2)+" "+reserveData.get(i+3));
+        for(int i=1; i < listID.size(); i++) {
+            System.out.println(i + ". " + listID.get(i) + " " + listDate.get(i) + " " + listPeople.get(i));
         }
         System.out.println("----------------------------------------");
 
@@ -477,7 +535,8 @@ public class adminReservation {// 사장이 예약 관리
             // 출력
             System.out.println("");
             System.out.println("1. 예약 허가");
-            System.out.println("2. 돌아가기");
+            System.out.println("2. 노쇼 등록");
+            System.out.println("3. 돌아가기");
             System.out.print("원하는 메뉴를 선택해 주세요:");
             // 입력
             select = scan.nextLine();
@@ -488,7 +547,6 @@ public class adminReservation {// 사장이 예약 관리
             }
             switch (flag) {
                 case 1 -> {
-
                     System.out.print("예약 허가할 번호를 입력하세요:");
                     select = scan.nextLine();
 
@@ -504,7 +562,7 @@ public class adminReservation {// 사장이 예약 관리
                         return;
                     }
 
-                    if(input<1||input>reserveNum) {
+                    if(input < 1 || input>=listID.size()) {
                         System.out.println("[오류] 해당하는 번호가 없습니다.");
                         return;
                     }
@@ -522,6 +580,84 @@ public class adminReservation {// 사장이 예약 관리
 
 
                 } // 예약허가(Index 입력 -검사 if(!문자열.matches("^[0-9]+$"),범위)
+
+                case 2 -> {
+                    System.out.print("노쇼 등록할 번호를 입력하세요: ");
+
+                    String inputNum = scan.nextLine();
+
+                    if (!inputNum.matches("^[1-9]+$")) { // 숫자가 입력되지 않았을 때
+                        System.out.println("[오류] 올바르지 않은 입력입니다.");
+                        return;
+                    }
+
+                    int index = Integer.parseInt(inputNum);
+
+                    if(index < 1 && index >= listID.size()) {
+                        System.out.println("[오류] 해당하는 번호가 없습니다.");
+                        return;
+                    }
+
+                    System.out.print(index + "번을 노쇼 등록 하시겠습니까?(Yes/No): ");
+                    select = scan.nextLine();
+                    if (select.equals("No")) {
+                        System.out.println("노쇼 등록이 취소 되었습니다.");
+                        return;
+                    } else {
+                        try {
+                            String data = "";
+                            String userName = listID.get(index);
+
+                            database.store = new Scanner(new File("store.txt"));
+                            while(database.store.hasNextLine()) {
+                                String line = database.store.nextLine();
+                                String[] parts = line.split("\t");
+                                if(parts[0].equals(storeName)) {
+                                    if(parts.length == 5) { // 이미 노쇼 고객정보가 있을 경우
+                                        data += (String.join("\t", parts[0], parts[1], parts[2], parts[3]) + "\t");
+                                        String[] noShowInfo = parts[4].split(" ");
+
+                                        boolean isUserExist = false;
+                                        for(int i = 0; i < noShowInfo.length; i += 2) {
+                                            if(noShowInfo[i].equals(userName)) {
+                                                isUserExist = true;
+                                                int noShowCnt = Integer.parseInt(noShowInfo[i + 1]);
+                                                noShowCnt++;
+                                                noShowInfo[i + 1] = String.valueOf(noShowCnt);
+                                            }
+
+                                            data += (noShowInfo[i] + " " + noShowInfo[i + 1] + " ");
+                                        }
+
+                                        if(!isUserExist) { // 노쇼고객 정보는 있는데 유저가 없음.
+                                            data += (userName + " 1 ");
+                                        }
+                                        data = data.substring(0, data.length() - 1) + "\n";
+
+                                    } else { // 노쇼 고객 정보가 없다면!
+                                        String userPart = listID.get(index) + " 1";
+                                        data += (String.join("\t", parts[0], parts[1], parts[2], parts[3]) + "\t" + userPart + "\n");
+                                    }
+                                } else {
+                                    data += (line + "\n");
+                                }
+
+                                database.storeWrite = new PrintWriter(new FileWriter("store.txt"));
+                                database.storeWrite.write(data);
+
+                            }
+                        } catch (Exception e) {
+                            System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
+                            System.exit(0);
+                        } finally {
+                            database.store.close();
+                            database.storeWrite.close();
+                        }
+                    }
+
+                    System.out.println("노쇼 등록 되었습니다.");
+                    return;
+                }
                 default -> {
                     return;
                 }
