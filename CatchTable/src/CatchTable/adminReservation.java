@@ -409,7 +409,7 @@ public class adminReservation {// 사장이 예약 관리
             while(database.reserveManagement.hasNextLine()) {
                 n++;
                 search=database.reserveManagement.nextLine();
-                if(search.equals(str))
+                if(search.contains(str))
                     break;
             }
 
@@ -572,7 +572,8 @@ public class adminReservation {// 사장이 예약 관리
                         System.out.println("예약 허가가 취소되었습니다.");
                         return;
                     } else {
-                        String str=storeName+"\t"+reserveData.get((input-1)*4)+"\t"+reserveData.get((input-1)*4+1)+"\t"+reserveData.get((input-1)*4+2)+"\t"+reserveData.get((input-1)*4+3);
+                        String[] date = listDate.get(input).split(" ");
+                        String str = storeName + "\t" + listID.get(input) + "\t" + date[0] + "\t" + date[1] + "\t";
                         removeReserve(idxRm(str,"reserve.txt"),"reserve.txt");
                         System.out.println("예약 허가되었습니다.");
                         return;
