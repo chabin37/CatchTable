@@ -23,7 +23,6 @@ public class adminWaiting {
         int flag; //선택을 정수로 변환
         try { // 파일 내 Scanner위치 초기화
             database.store = new Scanner(new File("store.txt"));
-            database.waiting = new Scanner(new File("waiting.txt"));
             while (database.store.hasNextLine()) {// 매장 등록 여부 확인
                 String line = database.store.nextLine();
                 String[] part = line.split("\t");
@@ -38,7 +37,7 @@ public class adminWaiting {
                 System.out.println("등록된 매장이 없습니다. 매장을 먼저 등록하고 이용해주세요.");
                 return;
             }
-
+            database.waiting = new Scanner(new File("waiting.txt"));
             while (database.waiting.hasNextLine()) {// 매장 등록 여부 확인
                 String line = database.waiting.nextLine();
                 String[] part = line.split("\t");
@@ -84,8 +83,12 @@ public class adminWaiting {
 
         switch (flag) {
             case 1 -> {
+                if(waitingCustomers.isEmpty()) {
+                    System.out.println("[오류] 입장을 허가할 고객이 없습니다.");
+                    return;
+                }
                 String first=waitingCustomers.get(0)[1];
-                System.out.println(first+"고객을 입장시키겠습니까? (YES/No):");
+                System.out.print(first+"고객을 입장시키겠습니까? (Yes/No):");
                 List<String> temp = new ArrayList<>();
                 select=scan.nextLine();
                 if (select.equals("No")) {

@@ -314,6 +314,7 @@ public class database {
                 ID.add(part[1]);
                 isValidStoreNameandStoreId(part[0],part[1]);
                 temp.put(part[0],a);
+                if(IdOwnerCustomer.get(part[1]).equals("사장"))completionCode();
             }
 
         }

@@ -1,6 +1,5 @@
-Dd	dd	고객
-Aa	dd	고객
-T	t	사장
-F	F	사장
-Bb	dd	고객
-q	q	사장
+aaa	pwa	사장
+bbb	pwb	고객
+ccc	pwc	사장
+ddd	pwd	고객
+eee	pwe	사장

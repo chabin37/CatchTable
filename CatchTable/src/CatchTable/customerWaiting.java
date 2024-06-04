@@ -18,7 +18,7 @@ public class customerWaiting {
     public void isWaiting(String ID) { // 사용자 웨이팅 여부 판별
         String storeName = ""; // 매장 이름
         int waitingNum; // 웨이팅 순서(int)
-        String select; // 재차질문 YES/No
+        String select; // 재차질문 Yes/No
 
         try {
             database.waiting = new Scanner(new File("waiting.txt"));
@@ -35,17 +35,15 @@ public class customerWaiting {
                     System.out.println();
                     System.out.println(ID + " 님의 현재 웨이팅 순서는 " + waitingNum + " 번입니다.");
                     System.out.println();
-                    System.out.println("[경고] 다른 매장에 웨이팅하고자 할 경우, 현재 웨이팅은 취소됩니다.");
-                    System.out.print("다른 매장에 웨이팅하겠습니까? (Yes/No): ");
+                    System.out.println("[경고] 새로운 웨이팅을 진행할 경우, 현재 웨이팅은 취소됩니다.");
+                    System.out.print("새로운 웨이팅을 진행하겠습니까? (Yes/No):");
 
                     select = scan.nextLine();
 
                     if (select.equals("No")) {
                         return;
-                    }
-                    else {
-                        updateWaitingOrder(ID, storeName, waitingNum);
-                        waiting(ID);
+                    } else {
+                        waiting(ID, true, storeName, waitingNum);
                         return;
                     }
                 }
@@ -55,23 +53,25 @@ public class customerWaiting {
             if (!isWaiting) {
                 System.out.println();
                 System.out.println(ID + " 님은 현재 웨이팅하고 있는 매장이 없습니다.");
-                waiting(ID);
+                waiting(ID, false, null, 0);
             }
 
         } catch (Exception e) {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
         } finally {
-            database.waiting.close();
+            if (database.waiting != null) {
+                database.waiting.close();
+            }
         }
     }
 
-    public void waiting(String ID) {
+    public void waiting(String ID, boolean isUpdating, String oldStoreName, int oldWaitingNum) {
         ArrayList<String[]> waitingStores = new ArrayList<>();
         String num; // 매장 항목 번호(str)
         int storeNum; // 매장 항목 번호(int)
         int peopleNum; // 웨이팅할 총 인원(int)
-        String select; // 재차질문 YES/No
+        String select; // 재차질문 Yes/No
         int waitingNum = 1; // 웨이팅 순서(int)
 
         try {
@@ -111,8 +111,7 @@ public class customerWaiting {
             if (num.matches("^[a-zA-Z]+$")) {
                 System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
                 return;
-            }
-            else if (!num.matches("^[0-9]+$")) {
+            } else if (!num.matches("^[0-9]+$")) {
                 System.out.println("[오류] 숫자만 입력하세요.");
                 return;
             }
@@ -121,8 +120,7 @@ public class customerWaiting {
             if (peopleNum < 1) {
                 System.out.println("[오류] 총 인원수는 1 이상의 정수여야 합니다.");
                 return;
-            }
-            else if (peopleNum > 1000) {
+            } else if (peopleNum > 1000) {
                 System.out.println("[오류] 총 인원수는 1000 이하의 정수여야 합니다.");
                 return;
             }
@@ -130,13 +128,15 @@ public class customerWaiting {
             String[] storeInfo = waitingStores.get(storeNum - 1);
             String storeName = storeInfo[0];
             System.out.println();
-            System.out.print(storeName + " 매장에 " + peopleNum + " 명이 웨이팅하겠습니까? (YES/No): ");
+            System.out.print(storeName + " 매장에 " + peopleNum + " 명이 웨이팅하겠습니까? (Yes/No):");
             select = scan.nextLine();
 
             if (select.equals("No")) {
                 return;
-            }
-            else {
+            } else {
+                if (isUpdating) {
+                    updateWaitingOrder(ID, oldStoreName, oldWaitingNum);
+                }
                 ArrayList<String[]> waitingList = new ArrayList<>();
                 database.waiting = new Scanner(new File("waiting.txt"));
                 while (database.waiting.hasNextLine()) {
@@ -154,7 +154,6 @@ public class customerWaiting {
                     writer.println(String.join("\t", entry));
                 }
                 writer.close();
-
                 System.out.println();
                 System.out.println(ID + " 님의 현재 웨이팅 순서는 " + waitingNum + " 번입니다.");
             }
@@ -162,8 +161,12 @@ public class customerWaiting {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
         } finally {
-            database.store.close();
-            database.waiting.close();
+            if (database.store != null) {
+                database.store.close();
+            }
+            if (database.waiting != null) {
+                database.waiting.close();
+            }
         }
     }
 
@@ -190,7 +193,9 @@ public class customerWaiting {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
         } finally {
-            database.waiting.close();
+            if (database.waiting != null) {
+                database.waiting.close();
+            }
         }
     }
 }
