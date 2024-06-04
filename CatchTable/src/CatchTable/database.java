@@ -291,6 +291,7 @@ public class database {
     private void isValidWaiting(Scanner sc) {
         //[매장 이름]+[\t]+[ID]+[\t]+[순서]+[\t]+[웨이팅 인원]+[\n]
         Map<String,Integer> temp = new HashMap<>();
+        Set<String> ID=new HashSet<>();
         while (sc.hasNextLine()) {
             String line = sc.nextLine();
             String[] part = line.split("\t");
@@ -309,6 +310,8 @@ public class database {
                     a=1;
                 }
                 if(Integer.parseInt(part[2]) != a)completionCode();//순서무결성검사
+                if(ID.contains(part[1]))completionCode();
+                ID.add(part[1]);
                 isValidStoreNameandStoreId(part[0],part[1]);
                 temp.put(part[0],a);
             }

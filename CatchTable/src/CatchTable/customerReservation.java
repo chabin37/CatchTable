@@ -3,6 +3,7 @@ package CatchTable;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -68,7 +69,7 @@ public class customerReservation {
             return;
         }
 
-        if(database.isValidInt(1,Integer.toString(storeIndex)) != true||storeIndex>temp.size() ) {
+        if(!database.isValidInt(1,Integer.toString(storeIndex)) ||storeIndex>temp.size() ) {
             System.out.println("[오류] 해당하는 매장이 없습니다.");
             return;
         }
@@ -151,7 +152,7 @@ public class customerReservation {
             while(database.reserve.hasNextLine()) {
                 String line = database.reserve.nextLine();
                 String[] parts = line.split("\t");
-                if(temp.get(storeIndex-1).equals(parts[0]) && parts[2].equals(reservationDate)) { // 선택한 매장의 선택한 날짜인 경우!
+                if(storeName.equals(parts[0]) && parts[2].equals(reservationDate)) { // 선택한 매장의 선택한 날짜인 경우!
                     String[] tables = parts[4].split(" ");
 
                     if(ID.equals(parts[1])) { // 사용자가 선택했을 경우 시간 추가!
@@ -198,7 +199,13 @@ public class customerReservation {
             return;
         }
 
-        int userIndex = Integer.parseInt(tokens[0]);
+        int userIndex;
+        try {
+            userIndex = Integer.parseInt(tokens[0]);
+        } catch (NumberFormatException e) {
+            System.out.println("[오류] 정수의 최대범위를 넘은 값입니다.");
+            return;
+        }
         String userChosenTime;
         try {
             userChosenTime = availableTime.get(userIndex); // 유저가 고른 시간
@@ -224,7 +231,13 @@ public class customerReservation {
             return;
         }
 
-        int reservationPeople = Integer.parseInt(FinalreserveNum); // 예약 희망 인원
+        int reservationPeople;
+        try {
+            reservationPeople = Integer.parseInt(FinalreserveNum); // 예약 희망 인원
+        } catch (NumberFormatException e) {
+            System.out.println("[오류] 정수의 최대범위를 넘은 값입니다.");
+            return;
+        }
 
         for(String time : me) {
             if(userChosenTime.equals(time)){
@@ -297,7 +310,7 @@ public class customerReservation {
             try {
                 FileWriter fw = new FileWriter(new File("reserve.txt"), true);
                 PrintWriter writer = new PrintWriter(fw);
-                String newReservationInfo = String.join("\t", temp.get(storeIndex-1), ID, reservationDate, userChosenTime) + "\t";
+                String newReservationInfo = String.join("\t", storeName, ID, reservationDate, userChosenTime) + "\t";
 
                 for(int k : userTable.keySet()) {
                     newReservationInfo += String.join(" ", String.valueOf(k), String.valueOf(userTable.get(k)));
@@ -355,6 +368,8 @@ public class customerReservation {
         } catch (Exception e) {
             System.out.println("데이터베이스에 문제가 있습니다. 프로그램을 종료합니다.");
             System.exit(0);
+        } finally {
+            database.reserve.close();
         }
 
         // 예약 삭제 또는 돌아가기 선택
@@ -371,7 +386,8 @@ public class customerReservation {
 
         try {
             reservationIndex= Integer.parseInt(inputMenu);
-        }catch(Exception e) {
+        }catch(NumberFormatException e) {
+            System.out.println("[오류] 인원수가 최대 인원을 넘어섰습니다.");
             return;
         }
 //
@@ -400,7 +416,7 @@ public class customerReservation {
             return;
         }
 
-        int deletionIndex ;
+        int deletionIndex;
 
         try {
             deletionIndex= Integer.parseInt(inputDelete);
@@ -428,18 +444,16 @@ public class customerReservation {
 
             while (database.reserve.hasNextLine()) {
                 String line = database.reserve.nextLine();
-                String[] part = line.split("\t");
-
-                if (part[1].equals(ID)) {
-                    updatedReservations.add(line); // 일단 모든 예약을 저장
-                }
+                updatedReservations.add(line); // 일단 모든 예약을 저장
             }
+            database.reserve.close();
 
-            if (deletionIndex > 0 && deletionIndex <= updatedReservations.size()) {
-                updatedReservations.remove(deletionIndex - 1); // 삭제할 예약 제거
-            } else {
-                System.out.println("[오류] 해당하는 번호가 존재하지 않습니다.");
-                return;
+            for (int j = 0; j < updatedReservations.size(); j++) {
+                String[] part = updatedReservations.get(j).split("\t");
+                if(part[1].equals(ID) && part[2].equals(reserveDate) && part[3].equals(reserveTime)) { // id와 시간 일치 >> 고객이 고른 고유 예약
+                    updatedReservations.remove(j);
+                    break;
+                }
             }
 
             database.reserveWrite = new PrintWriter(new File("reserve.txt"));
