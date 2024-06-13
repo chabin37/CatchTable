@@ -31,18 +31,20 @@ public class customerWaiting {
                     isWaiting = true;
                     storeName = part[0];
                     waitingNum = Integer.parseInt(part[2]);
+                    System.out.println();
                     System.out.println(ID + " 님은 현재 " + storeName + " 매장에 웨이팅하고 있습니다.");
                     System.out.println();
                     System.out.println(ID + " 님의 현재 웨이팅 순서는 " + waitingNum + " 번입니다.");
                     System.out.println();
                     System.out.println("[경고] 새로운 웨이팅을 진행할 경우, 현재 웨이팅은 취소됩니다.");
-                    System.out.print("새로운 웨이팅을 진행하겠습니까? (Yes/No):");
+                    System.out.print("새로운 웨이팅을 진행하겠습니까? (Yes/No): ");
 
                     select = scan.nextLine();
 
                     if (select.equals("No")) {
                         return;
-                    } else {
+                    }
+                    else {
                         waiting(ID, true, storeName, waitingNum);
                         return;
                     }
@@ -94,13 +96,19 @@ public class customerWaiting {
             System.out.print("웨이팅 희망하는 매장 번호를 입력하세요: ");
             num = scan.nextLine();
 
-            if (!num.matches("^[0-9]+$")) {
+            if (!num.matches("^-?[0-9]+$")) {
                 System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
                 return;
             }
 
-            storeNum = Integer.parseInt(num);
-            if (storeNum < 1 || storeNum > waitingStores.size()) {
+            try {
+                storeNum = Integer.parseInt(num);
+            } catch(NumberFormatException e) {
+                System.out.println("[오류] 해당하는 매장이 없습니다.");
+                return;
+            }
+
+            if (Integer.parseInt(num) < 1 || Integer.parseInt(num) > waitingStores.size()) {
                 System.out.println("[오류] 해당하는 매장이 없습니다.");
                 return;
             }
@@ -111,16 +119,28 @@ public class customerWaiting {
             if (num.matches("^[a-zA-Z]+$")) {
                 System.out.println("[오류] 입력 형식이 올바르지 않습니다.");
                 return;
-            } else if (!num.matches("^[0-9]+$")) {
+            }
+            else if (!num.matches("^-?[0-9]+$")) {
                 System.out.println("[오류] 숫자만 입력하세요.");
                 return;
             }
+            else if(num.matches("-\\d+$")) {
+                System.out.println("[오류] 총 인원수는 1 이상의 정수여야 합니다.");
+                return;
+            }
 
-            peopleNum = Integer.parseInt(num);
+            try {
+                peopleNum = Integer.parseInt(num);
+            } catch(NumberFormatException e) {
+                System.out.println("[오류] 총 인원수는 1000 이하의 정수여야 합니다.");
+                return;
+            }
+
             if (peopleNum < 1) {
                 System.out.println("[오류] 총 인원수는 1 이상의 정수여야 합니다.");
                 return;
-            } else if (peopleNum > 1000) {
+            }
+            else if (peopleNum > 1000) {
                 System.out.println("[오류] 총 인원수는 1000 이하의 정수여야 합니다.");
                 return;
             }
@@ -128,12 +148,13 @@ public class customerWaiting {
             String[] storeInfo = waitingStores.get(storeNum - 1);
             String storeName = storeInfo[0];
             System.out.println();
-            System.out.print(storeName + " 매장에 " + peopleNum + " 명이 웨이팅하겠습니까? (Yes/No):");
+            System.out.print(storeName + " 매장에 " + peopleNum + " 명이 웨이팅하겠습니까? (Yes/No): ");
             select = scan.nextLine();
 
             if (select.equals("No")) {
                 return;
-            } else {
+            }
+            else {
                 if (isUpdating) {
                     updateWaitingOrder(ID, oldStoreName, oldWaitingNum);
                 }
